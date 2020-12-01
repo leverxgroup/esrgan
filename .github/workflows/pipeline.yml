@@ -1,0 +1,59 @@
+name: pipeline
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+   build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Get pip cache dir
+        id: pip-cache
+        run: |
+          echo "::set-output name=dir::$(pip cache dir)"
+      - name: Set up cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ steps.pip-cache.outputs.dir }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          python setup.py install
+
+      - name: Cache data
+        id: cache-div2k
+        uses: actions/cache@v2
+        with:
+          path: data/*.zip
+          key: ${{ runner.os }}-data
+      - name: Download DIV2K dataset
+        if: steps.cache-div2k.outputs.cache-hit != 'true'
+        run: |
+          wget http://data.vision.ee.ethz.ch/cvl/DIV2K/DIV2K_train_HR.zip -P ./data/
+          wget https://data.vision.ee.ethz.ch/cvl/DIV2K/DIV2K_train_LR_bicubic_X4.zip -P ./data/
+          wget http://data.vision.ee.ethz.ch/cvl/DIV2K/DIV2K_valid_HR.zip -P ./data/
+          wget https://data.vision.ee.ethz.ch/cvl/DIV2K/DIV2K_valid_LR_bicubic_X4.zip -P ./data/
+
+      - name: Check pipeline - phase 1 (supervised)
+        run: |
+          catalyst-dl run -C experiment/config_supervised.yml --check --stages/data_params/batch_size=2:int
+
+      - name: Check pipeline - phase 2(GAN)
+        run: |
+          catalyst-dl run -C experiment/config_gan.yml --check --stages/data_params/batch_size=2:int
