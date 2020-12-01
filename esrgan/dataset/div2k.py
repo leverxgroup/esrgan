@@ -71,7 +71,7 @@ class DIV2KDataset(Dataset):
         "DIV2K_train_LR_x8.zip": "613db1b855721b3d2b26f4194a1d22a6",
         "DIV2K_train_LR_mild.zip": "807b3e3a5156f35bd3a86c5bbfb674bc",
         "DIV2K_train_LR_difficult.zip": "5a8f2b9e0c5f5ed0dac271c1293662f4",
-        "DIV2K/DIV2K_train_LR_wild.zip": "d00982366bffee7c4739ba7ff1316b3b",
+        "DIV2K_train_LR_wild.zip": "d00982366bffee7c4739ba7ff1316b3b",
         "DIV2K_valid_LR_x8.zip": "c5aeea2004e297e9ff3abfbe143576a5",
         "DIV2K_valid_LR_mild.zip": "8c433f812ca532eed62c11ec0de08370",
         "DIV2K_valid_LR_difficult.zip": "1620af11bf82996bc94df655cb6490fe",

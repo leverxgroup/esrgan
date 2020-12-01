@@ -136,7 +136,7 @@ class PerceptualLoss(_Loss):
         loss = torch.tensor(0.0, requires_grad=True).to(fake_data)
         for layer, weight in self.layers.items():
             layer_loss = F.l1_loss(fake_features[layer], real_features[layer])
-            loss += weight * layer_loss
+            loss = loss + weight * layer_loss
 
         return loss
 
