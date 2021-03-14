@@ -57,8 +57,8 @@ jobs:
 
       - name: Check pipeline - phase 1 (supervised)
         run: |
-          catalyst-dl run -C experiment/config_supervised.yml --check --stages/data_params/batch_size=2:int
+          poetry run catalyst-dl run -C experiment/config_supervised.yml --check --stages/data_params/batch_size=2:int
 
       - name: Check pipeline - phase 2(GAN)
         run: |
-          catalyst-dl run -C experiment/config_gan.yml --check --stages/data_params/batch_size=2:int
+          poetry run catalyst-dl run -C experiment/config_gan.yml --check --stages/data_params/batch_size=2:int
