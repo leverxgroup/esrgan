@@ -22,9 +22,9 @@ capable of recovering HR images from LR ones. And ESRGAN (Enhanced SRGAN) is one
 Key points of ESRGAN:
 
 - SRResNet-based architecture with residual-in-residual blocks;
-- Mixture of context, perceptual, and adversarial losses. Context and perceptual losses are used for proper image upscaling,
-  while adversarial loss pushes neural network to the natural image manifold using a discriminator network
-  that is trained to differentiate between the super-resolved images and original photo-realistic images.
+- Mixture of context, perceptual, and adversarial losses. Context and perceptual losses are used for proper
+  image upscaling, while adversarial loss pushes neural network to the natural image manifold using a discriminator
+  network that is trained to differentiate between the super-resolved images and original photo-realistic images.
 
 .. image:: ./_static/architecture.png
 
@@ -33,8 +33,9 @@ Technologies
 ============
 
 * `Catalyst` as pipeline runner for deep learning tasks. This new and rapidly developing `library <https://github.com/catalyst-team/catalyst>`__
-  can significantly reduce the amount of boilerplate code. If you are familiar with the TensorFlow ecosystem, you can think of Catalyst
-  as Keras for PyTorch. This framework is integrated with logging systems such as the well-known `TensorBoard <https://www.tensorflow.org/tensorboard>`__.
+  can significantly reduce the amount of boilerplate code. If you are familiar with the TensorFlow ecosystem,
+  you can think of Catalyst as Keras for PyTorch. This framework is integrated with logging systems
+  such as the well-known `TensorBoard <https://www.tensorflow.org/tensorboard>`__.
 * `Pytorch`, `torchvision`, and `PIQ` as main frameworks for deep learning.
 * `Albumentations` for data preprocessing.
 
@@ -45,17 +46,19 @@ Quick Start
 Setup environment
 -----------------
 
-`esrgan` requires python >= 3.8. The `requirements.txt <../requirements.txt>`__ file can be used to install the necessary packages.
+`esrgan` requires python >= 3.8.
 
 ::
 
-   git clone  https://github.com/leverxgroup/esrgan.git
-   pip install ./esrgan
+   pip install git+https://github.com/leverxgroup/esrgan.git
 
 Run an experiment
 -----------------
 
 ::
+
+   # step 0 - download dir with ESRGAN experiment
+   git clone --depth 1 https://github.com/leverxgroup/esrgan.git
 
    # step 1 - supervised training of the model
    catalyst-dl run -C esrgan/experiment/config_supervised.yml --benchmark
@@ -120,7 +123,7 @@ Bugfixes and contributions are very much appreciated!
 License
 =======
 
-`esrgan` is released under a CC BY-NC-ND 4.0 license. See `LICENSE <../LICENSE>`__ for additional details about it.
+`esrgan` is released under a CC-BY-NC-ND-4.0 license. See `LICENSE <../LICENSE>`__ for additional details about it.
 
 
 .. toctree::
