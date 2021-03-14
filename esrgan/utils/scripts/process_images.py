@@ -14,8 +14,13 @@ from esrgan.utils import pairwise
 logger = logging.getLogger(__name__)
 
 
-def parse_args():
-    """Parses the command line arguments for the main method."""
+def parse_args() -> argparse.Namespace:
+    """Parses the command line arguments for the main method.
+
+    Returns:
+        Command line arguments.
+
+    """
     parser = argparse.ArgumentParser()
     parser.add_argument("--in-dir", required=True, type=Path)
     parser.add_argument("--out-dir", required=True, type=Path)
@@ -83,6 +88,22 @@ def cut_with_overlap(
 
 
 class Preprocessor:
+    """Cuts raw input images with sliding window.
+
+    Args:
+        in_dir: Directory with raw images.
+        out_dir: Directory to save processed images,
+        patch_height: Height of slice to cut.
+        patch_width: Width of slice to cut.
+        height_overlap: Height of overlap between two slices.
+        width_overlap: Width of overlap between two slices.
+        min_height: Minimal height that image should have,
+            if image is smaller then it wouldn't be cut.
+        min_width: Minimal width that image should have,
+            if image is smaller then it wouldn't be cut.
+
+    """
+
     def __init__(
         self,
         in_dir: Path,
@@ -105,7 +126,12 @@ class Preprocessor:
         self.min_width = min_width or min_height
 
     def preprocess(self, filepath: Path) -> None:
-        """Process one file."""
+        """Process one file.
+
+        Args:
+            filepath: Path to file to process.
+
+        """
         try:
             image = np.array(utils.imread(filepath))
         except Exception as e:
@@ -131,7 +157,12 @@ class Preprocessor:
             utils.imwrite(uri=out_path, im=patch)
 
     def process_all(self, pool: Pool) -> None:
-        """Process all images in the folder."""
+        """Process all images in the folder.
+
+        Args:
+            pool: Pool of processes which will carry out image processing.
+
+        """
         files = glob.iglob(f"{self.in_dir}/**/*", recursive=True)
         images = sorted(filter(utils.has_image_extension, files))
         images = [Path(filepath) for filepath in (images)]

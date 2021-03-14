@@ -3,8 +3,9 @@ Core (Catalyst abstractions)
 
 There are 3 main abstractions in `Catalyst <https://catalyst-team.github.io/catalyst>`__: *Experiment*, *Runner*, and *Callback*.
 
-In general, the *Experiment* knows **what** you would like to run, *Runner* contains all the logic of **how** to run the experiment,
-while *Callbacks* allow you to customize experiment run logic by using specific custom callback functions without changing neither *Experiment* nor *Runner*.
+In general, the *Experiment* knows **what** you would like to run, *Runner* contains all the logic of **how** to run
+the experiment, while *Callbacks* allow you to customize experiment run logic by using specific custom callback
+functions without changing neither *Experiment* nor *Runner*.
 
 .. note::
 
@@ -18,8 +19,9 @@ while *Callbacks* allow you to customize experiment run logic by using specific 
 Experiment
 ^^^^^^^^^^
 
-*Experiment* in an abstraction that contains information about the experiment – a model, a criterion, an optimizer, a scheduler, and their hyperparameters.
-It also contains information about the data and transformations used. In other words, the Experiment knows **what** you would like to run.
+*Experiment* in an abstraction that contains information about the experiment – a model, a criterion, an optimizer,
+a scheduler, and their hyperparameters. It also contains information about the data and transformations used.
+In other words, the Experiment knows **what** you would like to run.
 
 .. automodule:: esrgan.core.experiment
     :members:
@@ -29,7 +31,8 @@ It also contains information about the data and transformations used. In other w
 GAN Runners
 ^^^^^^^^^^^
 
-*Runner* is an abstraction that knows how to run an experiment. It contains all the logic of **how** to run the experiment, stages, epoch and batches.
+*Runner* is an abstraction that knows how to run an experiment. It contains all the logic of **how**
+to run the experiment, stages, epoch and batches.
 
 .. automodule:: esrgan.core.runner
     :members:
@@ -56,8 +59,8 @@ To give users maximum flexibility and extensibility Catalyst supports callback e
 
     exception – if an Exception was raised
 
-For example, to calculate ROC-AUC of the model you may use :py:func:`on_batch_end` method to gather per-batch predictions
-and :py:func:`on_loader_end` method to average those statistics.
+For example, to calculate ROC-AUC of the model you may use :py:func:`on_batch_end` method to gather
+per-batch predictions and :py:func:`on_loader_end` method to average those statistics.
 
 Metrics
 -------

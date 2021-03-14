@@ -50,6 +50,7 @@ torchvision = "0.7.0"
 
 [tool.poetry.dev-dependencies]
 darglint = "^1.2"
+doc8 = "^0.8"
 flake8 = "^3.8"
 flake8-broken-line = "^0.3"
 flake8-comprehensions = "^3.1"

@@ -19,7 +19,15 @@ class ConcatInputModule(nn.Module):
         self.module = module
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Forward pass."""
+        """Forward pass.
+
+        Args:
+            x: Batch of inputs.
+
+        Returns:
+            Processed batch.
+
+        """
         output = [x]
         for module in self.module:
             z = torch.cat(output, dim=1)
@@ -58,7 +66,15 @@ class ResidualModule(nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Forward pass."""
+        """Forward pass.
+
+        Args:
+            x: Batch of inputs.
+
+        Returns:
+            Processed batch.
+
+        """
         return x + self.scale * self.module(x)
 
 
