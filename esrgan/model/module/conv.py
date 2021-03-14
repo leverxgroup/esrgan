@@ -80,19 +80,37 @@ class StridedConvEncoder(nn.Module):
         self.net = nn.Sequential(collections.OrderedDict(net))
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Forward pass."""
+        """Forward pass.
+
+        Args:
+            x: Batch of inputs.
+
+        Returns:
+            Batch of embeddings.
+
+        """
         output = self.net(x)
 
         return output
 
     @property
     def in_channels(self) -> int:
-        """The number of channels in the feature map of the input."""
+        """The number of channels in the feature map of the input.
+
+        Returns:
+            Size of the input feature map.
+
+        """
         return self._layers[0]
 
     @property
     def out_channels(self) -> int:
-        """Number of channels produced by the block."""
+        """Number of channels produced by the block.
+
+        Returns:
+            Size of the output feature map.
+
+        """
         return self._layers[-1]
 
 

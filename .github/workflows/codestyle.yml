@@ -40,5 +40,5 @@ jobs:
 
       - name: Check codestyle
         run: |
-          poetry run flake8 esrgan
+          poetry run flake8 --show-source --statistics --count -- esrgan
           poetry run doc8 -q --max-line-length 119 docs
