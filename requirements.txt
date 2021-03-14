@@ -1,7 +1,0 @@
-albumentations==0.4.6
-jpeg4py==0.1.4
-numpy==1.19.1
-piq==0.5.1
-torch==1.6.0
-torchvision==0.7.0
-catalyst @ git+https://github.com/catalyst-team/catalyst.git@4f9fcd9c046b387378de6d295e7722b40361a020#egg=catalyst[cv]

@@ -1,0 +1,62 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "esrgan"
+version = "0.1.2"
+description = "Implementation of paper `ESRGAN: Enhanced Super-Resolution Generative Adversarial Networks`"
+license = "CC-BY-NC-ND-4.0"
+authors = [
+  "Yauheni Kachan <yauheni.kachan@leverx.com>"
+]
+readme = "README.md"
+repository = "https://github.com/leverxgroup/esrgan"
+documentation = "https://esrgan.readthedocs.io/"
+keywords = [
+  "computer vision",
+  "super-resolution",
+  "generative adversarial networks",
+  "esrgan",
+  "pytorch",
+]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Operating System :: OS Independent",
+  "License :: Free for non-commercial use",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+  "Topic :: Scientific/Engineering :: Image Recognition",
+  "Topic :: Software Development :: Libraries",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+]
+
+[tool.poetry.scripts]
+esrgan-process-images = 'esrgan.utils.scripts.process_images:main'
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+albumentations = "~0.4.6"
+catalyst = { git = "https://github.com/catalyst-team/catalyst.git", rev = "4f9fcd9c046b387378de6d295e7722b40361a020", extras = ["cv"] }
+jpeg4py = "^0.1.4"
+numpy = "^1.19.1"
+piq = "~0.5.1"
+torch = "1.6.0"
+torchvision = "0.7.0"
+
+[tool.poetry.dev-dependencies]
+darglint = "^1.2"
+flake8 = "^3.8"
+flake8-broken-line = "^0.3"
+flake8-comprehensions = "^3.1"
+flake8-debugger = "^4.0"
+flake8-docstrings = "^1.3"
+flake8-eradicate = "^1.0"
+flake8-isort = "^4.0"
+flake8-quotes = "^3.0"
+flake8-rst-docstrings = "^0.0.14"
+mypy = "^0.812"
