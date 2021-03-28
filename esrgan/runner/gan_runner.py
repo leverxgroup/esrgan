@@ -1,13 +1,17 @@
 from typing import Dict
 
-from catalyst import dl
+from catalyst.core.runner import IRunner
 import torch
 
 
-class GANRunner(dl.Runner):
-    """Runner for experiments with supervised / GAN model."""
+class GANRunner(IRunner):
+    """Runner for ESRGAN, please check `catalyst docs`__ for more info.
 
-    def _init(
+    __ https://catalyst-team.github.io/catalyst/api/core.html#experiment
+
+    """
+
+    def __init__(
         self,
         input_key: str = "image",
         target_key: str = "real_image",
@@ -42,7 +46,7 @@ class GANRunner(dl.Runner):
                 model (will be used in gan stages only).
 
         """
-        super()._init()
+        super().__init__(self)
 
         self.generator_key = generator_key
         self.discriminator_key = discriminator_key
@@ -55,31 +59,31 @@ class GANRunner(dl.Runner):
         self.discriminator_real_output_dkey = discriminator_real_output_dkey
         self.discriminator_fake_output_dkey = discriminator_fake_output_dkey
 
-    def _prepare_for_stage(self, stage: str) -> None:
-        """Prepare `_handle_batch` method for current stage.
+    def predict_batch(self, batch: Dict[str, torch.Tensor]) -> torch.Tensor:
+        """Generate predictions based on input batch (generator inference).
 
         Args:
-            stage: Name of current stage.
+            batch: Input batch (batch of samples to adjust e.g. zoom).
 
-        Raises:
-            NotImplementedError: Name of the `stage` should ends with
-                ``'_supervised'``, ``'_gan'`` or should be ``'infer'``,
-                raise error otherwise.
+        Returns:
+            Batch of predictions of the generator.
 
         """
-        super()._prepare_for_stage(stage=stage)
+        model = self.model[self.generator_key]
+        output = model(batch[self.input_key].to(self.device))
 
-        if stage.endswith("_supervised") or stage == "infer":
-            self._handle_batch = self._handle_batch_supervised
-        elif stage.endswith("_gan"):
-            self._handle_batch = self._handle_batch_gan
-        else:
-            raise NotImplementedError()
+        return output
 
-    def _handle_batch(self, batch: Dict[str, torch.Tensor]) -> None:
-        # `_handle_batch` method is @abstractmethod so it must be defined
-        # even if it overwrites in `_prepare_for_stage`
-        raise NotImplementedError()
+    def handle_batch(self, batch: Dict[str, torch.Tensor]) -> None:
+        """Inner method to handle specified data batch.
+
+        Args:
+            batch: Dictionary with data batches from DataLoader.
+
+        """
+        # `handle_batch` method is `@abstractmethod` so it must be defined
+        # even if it overwrites in `on_stage_start`
+        self.batch = {**batch}
 
     def _handle_batch_supervised(self, batch: Dict[str, torch.Tensor]) -> None:
         """Process train/valid batch, supervised mode.
@@ -91,7 +95,7 @@ class GANRunner(dl.Runner):
         model = self.model[self.generator_key]
         output = model(batch[self.input_key])
 
-        self.output = {self.generator_output_key: output}
+        self.batch = {**batch, self.generator_output_key: output}
 
     def _handle_batch_gan(self, batch: Dict[str, torch.Tensor]) -> None:
         """Process train/valid batch, GAN mode.
@@ -118,7 +122,8 @@ class GANRunner(dl.Runner):
         real_logits_d = discriminator(real_image)
         fake_logits_d = discriminator(fake_image.detach())
 
-        self.output = {
+        self.batch = {
+            **batch,
             self.generator_output_key: fake_image,
             self.discriminator_real_output_gkey: real_logits_g,
             self.discriminator_fake_output_gkey: fake_logits_g,
@@ -126,20 +131,26 @@ class GANRunner(dl.Runner):
             self.discriminator_fake_output_dkey: fake_logits_d,
         }
 
-    def predict_batch(self, batch: Dict[str, torch.Tensor]) -> torch.Tensor:
-        """Generate predictions based on input batch (generator inference).
+    def on_stage_start(self, runner: IRunner) -> None:
+        """Prepare `_handle_batch` method for current stage.
 
         Args:
-            batch: Input batch (batch of samples to adjust e.g. zoom).
+            runner: Current runner.
 
-        Returns:
-            Batch of predictions of the generator.
+        Raises:
+            NotImplementedError: Name of the stage should ends with
+                ``'_supervised'``, ``'_gan'`` or should be ``'infer'``,
+                raise error otherwise.
 
         """
-        model = self.model[self.generator_key]
-        output = model(batch[self.input_key].to(self.device))
+        super().on_stage_start(runner=runner)
 
-        return output
+        if self.stage_key.endswith("_supervised") or self.stage_key == "infer":
+            self.handle_batch = self._handle_batch_supervised
+        elif self.stage_key.endswith("_gan"):
+            self.handle_batch = self._handle_batch_gan
+        else:
+            raise NotImplementedError()
 
 
 __all__ = ["GANRunner"]

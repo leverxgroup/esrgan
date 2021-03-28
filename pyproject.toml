@@ -41,7 +41,8 @@ esrgan-process-images = 'esrgan.utils.scripts.process_images:main'
 python = "^3.8"
 
 albumentations = "~0.4.6"
-catalyst = { git = "https://github.com/catalyst-team/catalyst.git", rev = "4f9fcd9c046b387378de6d295e7722b40361a020", extras = ["cv"] }
+# catalyst = {version = "~21.4", extras = ["cv"]}
+catalyst = {git = "https://github.com/catalyst-team/catalyst.git", rev = "7926dafb506b1e0952fc7588213c1a1518cb7bed", extras = ["cv"]}
 jpeg4py = "^0.1.4"
 numpy = "^1.19.1"
 piq = "~0.5.1"

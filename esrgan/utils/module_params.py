@@ -3,7 +3,7 @@ import functools
 import re
 from typing import Any, Callable, Dict, Optional
 
-from catalyst.registry import MODULE
+from catalyst.registry import REGISTRY
 from torch import nn
 
 from esrgan.utils.types import ModuleParams
@@ -51,7 +51,7 @@ def _process_fn_params(
         module_fn = params
     elif isinstance(params, str):
         name = params
-        module_fn = MODULE.get(name)
+        module_fn = REGISTRY.get(name)
     elif isinstance(params, dict) and key is not None:
         params = copy.deepcopy(params)
 

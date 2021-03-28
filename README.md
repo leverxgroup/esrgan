@@ -29,8 +29,7 @@ Key points of ESRGAN:
 `esrgan` requires python >= 3.8. The [requirements.txt](requirements.txt) file can be used to install the necessary packages.
 
 ```
-git clone  https://github.com/leverxgroup/esrgan.git
-pip install ./esrgan
+pip install git+https://github.com/leverxgroup/esrgan.git
 ```
 
 ### Run an experiment

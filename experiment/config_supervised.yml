@@ -1,12 +1,12 @@
 shared:
-  - &upscale 4  # 2, 4, 8
-  - &patch_size 128  # 40, 64, 96, 128, 192
+  upscale: &upscale 4  # 2, 4, 8
+  patch_size: &patch_size 128  # 40, 64, 96, 128, 192
 
-model_params:
+model:
   _key_value: true
 
   &generator_model generator:
-    model: esrgan.EncoderDecoderNet
+    _target_: esrgan.EncoderDecoderNet
     encoder_params:
       module: esrgan.ESREncoder
       in_channels: &num_channels 3
@@ -24,8 +24,9 @@ model_params:
       out_channels: *num_channels
       scale_factor: *upscale
       activation_fn: *activation_fn
+
   &discriminator_model discriminator:
-    model: esrgan.VGGConv
+    _target_: esrgan.VGGConv
     encoder_params:
       module: esrgan.StridedConvEncoder
       layer_order: [conv, norm, activation]
@@ -42,131 +43,144 @@ model_params:
 
 args:
   expdir: experiment
-  logdir: ./logs/esrgan_x4_128ps/supervised
+  logdir: &logdir ./logs/esrgan_x4_128ps/supervised
 
-runner_params:
+runner:
+  _target_: esrgan.GANConfigRunner
   generator_key: *generator_model
   discriminator_key: *discriminator_model
 
+engine:
+  _target_: DeviceEngine
+
+# loggers: {}
+  # console:
+  #   _target_: ConsoleLogger
+  # tensorboard:
+  #   _target_: TensorboardLogger
+  #   logdir: *logdir
+  #   use_logdir_postfix: true
+
 stages:
-  state_params:
-    main_metric: ssim
-    minimize_metric: false
-
-  data_params:
-    num_workers: 8
-    batch_size: 48
-    train_dataset_params: &train_dataset_params
-      dataset: DIV2KDataset
-      root: data
-      train: true
-      target_type: bicubic_X4
-      patch_size: [*patch_size, *patch_size]
-      low_resolution_image_key: image
-      high_resolution_image_key: real_image
-      download: true
-    valid_dataset_params:
-      << : [*train_dataset_params]
-      train: false
-    loaders_params:
-      valid:
-        batch_size: 1
-
-  criterion_params:
-    _key_value: true
-
-    content_loss:
-      criterion: L1Loss  # L1Loss, MSELoss
-
-  callbacks_params:
-    metric_psnr:
-      callback: esrgan.PSNRCallback
-      input_key: real_image
-      output_key: fake_image
-    metric_ssim:
-      callback: esrgan.SSIMCallback
-      input_key: real_image
-      output_key: fake_image
-
   stage1_supervised:
-    state_params:
-      num_epochs: 40
+    num_epochs: 40
 
-    transform_params:
+    loaders:
+      num_workers: 8
+      batch_size: 48
+
+      train_dataset: &train_dataset
+        _target_: esrgan.DIV2KDataset
+        root: data
+        train: true
+        target_type: bicubic_X4
+        patch_size: [*patch_size, *patch_size]
+        transform:
+          _target_: albumentations.Compose
+          transforms:
+            - &spatial_transforms
+              _target_: albumentations.Compose
+              transforms:
+                - transform: albumentations.HorizontalFlip
+                  p: 0.5
+              additional_targets:
+                real_image: image
+            - &hard_transforms
+              _target_: albumentations.Compose
+              transforms:
+                - _target_: albumentations.Cutout
+                  num_holes: 2
+                  max_h_size: 2
+                  max_w_size: 2
+                - _target_: albumentations.ImageCompression
+                  quality_lower: 65
+                  p: 0.25
+            - &post_transforms
+              _target_: albumentations.Compose
+              transforms:
+                - _target_: albumentations.Normalize
+                  mean: 0
+                  std: 1
+                - _target_: albumentations.ToTensorV2
+              additional_targets:
+                real_image: image
+        low_resolution_image_key: image
+        high_resolution_image_key: real_image
+        download: false  # TODO: true
+
+      valid_dataset:
+        << : [*train_dataset]
+        train: false
+        transform: *post_transforms
+
+      loaders_params:
+        valid:
+          batch_size: 1
+
+    criterion:
       _key_value: true
 
-      train:
-        transform: albumentations.Compose
-        transforms:
-          - &spatial_transforms
-            transform: albumentations.Compose
-            transforms:
-              - transform: albumentations.HorizontalFlip
-                p: 0.5
-            additional_targets:
-              real_image: image
-          - &hard_transforms
-            transform: albumentations.Compose
-            transforms:
-              - transform: albumentations.Cutout
-                num_holes: 2
-                max_h_size: 2
-                max_w_size: 2
-              - transform: albumentations.ImageCompression
-                quality_lower: 65
-                p: 0.25
-          - &post_transforms
-            transform: albumentations.Compose
-            transforms:
-              - transform: albumentations.Normalize
-                mean: 0
-                std: 1
-              - transform: albumentations.ToTensorV2
-            additional_targets:
-              real_image: image
-      valid:
-        transform: albumentations.Compose
-        transforms:
-          - *post_transforms
+      content_loss:
+        _target_: L1Loss  # `L1Loss`, `MSELoss`
 
-    optimizer_params:
+    optimizer:
       _key_value: true
 
       generator_optimizer:
-        _model: *generator_model
-        optimizer: Ralamb  # AdamW
+        _target_: Ralamb  # AdamW
         lr_linear_scaling:
           lr: 0.003  # 0.0001
           base_batch_size: &base_batch_size 16
         weight_decay: 0.0
+        _model: *generator_model
 
-    scheduler_params:
+    scheduler:
       _key_value: true
 
       generator_scheduler:
-        _optimizer: generator_optimizer
-        scheduler: MultiStepLR
+        _target_: MultiStepLR
         milestones: [8, 20, 28]
         gamma: 0.5
+        _optimizer: generator_optimizer
 
-    callbacks_params:
-      loss_content:
-        callback: CriterionCallback
+    callbacks:
+      psnr_metric:
+        _target_: esrgan.PSNRCallback
         input_key: real_image
-        output_key: fake_image
-        prefix: loss_content
+        target_key: fake_image
+      ssim_metric:
+        _target_: esrgan.SSIMCallback
+        input_key: real_image
+        target_key: fake_image
+
+      loss_content:
+        _target_: CriterionCallback
+        input_key: real_image
+        target_key: fake_image
+        metric_key: loss_content
         criterion_key: content_loss
-        multiplier: 1.0
 
       optimizer_generator:
-        callback: AMPOptimizerCallback
+        _target_: OptimizerCallback
         metric_key: loss_content
         optimizer_key: generator_optimizer
+        grad_clip_fn: clip_grad_value_
         grad_clip_params: &grad_clip_params
-          func: clip_grad_value_
           clip_value: 5.0
 
       scheduler_generator:
-        callback: SchedulerCallback
+        _target_: SchedulerCallback
         scheduler_key: generator_scheduler
-        reduced_metric: loss_content
+        loader_key: valid
+        metric_key: loss_content
+
+      # saver:
+      #   _target_: CheckpointCallback
+      #   logdir: *logdir
+      #   loader_key: valid
+      #   metric_key: ssim
+      #   minimize: false
+      #   use_logdir_postfix: True
+
+      # verbose:
+      #   _target_: TqdmCallback
