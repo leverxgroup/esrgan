@@ -1,10 +1,23 @@
-from typing import Union
+import functools
+from typing import Callable, Union
 
-from catalyst.core import BatchMetricCallback
+from catalyst import callbacks, utils
 import piq
+import torch
 
 
-class PSNRCallback(BatchMetricCallback):
+# TODO: remove this hotfix (for catalyst=21.03)
+def to_numpy(metric_fn: Callable) -> Callable:
+    def wrapper(*args, **kwargs):
+        value = metric_fn(*args, **kwargs)
+        if torch.is_tensor(value):
+            value = utils.detach_tensor(value)
+
+        return value
+    return wrapper
+
+
+class PSNRCallback(callbacks.FunctionalMetricCallback):
     """Peak signal-to-noise ratio (PSNR) metric callback.
 
     Compute Peak Signal-to-Noise Ratio for a batch of images.
@@ -12,10 +25,9 @@ class PSNRCallback(BatchMetricCallback):
     Args:
         input_key: Input key to use for PSNR calculation;
             specifies our `y_true`.
-        output_key: Output key to use for PSNR calculation;
+        target_key: Output key to use for PSNR calculation;
             specifies our `y_pred`.
-        prefix: Name of the metric / key to store in logs.
-        multiplier: Scale factor for the metric.
+        metric_key: Name of the metric / key to store in logs.
         data_range: Value range of input images (usually 1.0 or 255).
         reduction: Reduction over samples in batch, should be one of:
             ``'mean'``, ``'sum'``, or ``'none'``.
@@ -28,26 +40,28 @@ class PSNRCallback(BatchMetricCallback):
     def __init__(
         self,
         input_key: str = "targets",
-        output_key: str = "outputs",
-        prefix: str = "psnr",
-        multiplier: float = 1.0,
+        target_key: str = "outputs",
+        metric_key: str = "psnr",
         data_range: Union[int, float] = 1.0,
         reduction: str = "mean",
         convert_to_greyscale: bool = False,
     ) -> None:
-        super().__init__(
-            prefix=prefix,
-            metric_fn=piq.psnr,
-            input_key=input_key,
-            output_key=output_key,
-            multiplier=multiplier,
+        metric_fn = functools.partial(
+            to_numpy(piq.psnr),
             data_range=data_range,
             reduction=reduction,
             convert_to_greyscale=convert_to_greyscale,
         )
 
+        super().__init__(
+            metric_fn=metric_fn,
+            input_key=input_key,
+            target_key=target_key,
+            metric_key=metric_key,
+        )
 
-class SSIMCallback(BatchMetricCallback):
+
+class SSIMCallback(callbacks.FunctionalMetricCallback):
     """Structural similarity (SSIM) metric callback.
 
     Computes Structural Similarity (SSIM) index between two images.
@@ -57,10 +71,9 @@ class SSIMCallback(BatchMetricCallback):
     Args:
         input_key: Input key to use for SSIM calculation;
             specifies our `y_true`.
-        output_key: Output key to use for SSIM calculation;
+        target_key: Output key to use for SSIM calculation;
             specifies our `y_pred`.
-        prefix: Name of the metric / key to store in logs.
-        multiplier: Scale factor for the metric.
+        metric_key: Name of the metric / key to store in logs.
         kernel_size: The side-length of the Gaussian sliding window
             used in comparison. Must be an odd value.
         kernel_sigma: Standard deviation of normal distribution.
@@ -79,9 +92,8 @@ class SSIMCallback(BatchMetricCallback):
     def __init__(
         self,
         input_key: str = "targets",
-        output_key: str = "outputs",
-        prefix: str = "ssim",
-        multiplier: float = 1.0,
+        target_key: str = "outputs",
+        metric_key: str = "ssim",
         kernel_size: int = 11,
         kernel_sigma: float = 1.5,
         data_range: Union[int, float] = 1.0,
@@ -89,18 +101,21 @@ class SSIMCallback(BatchMetricCallback):
         k1: float = 0.01,
         k2: float = 0.03,
     ) -> None:
-        super().__init__(
-            prefix=prefix,
-            metric_fn=piq.ssim,
-            input_key=input_key,
-            output_key=output_key,
-            multiplier=multiplier,
+        metric_fn = functools.partial(
+            to_numpy(piq.ssim),
             kernel_size=kernel_size,
             kernel_sigma=kernel_sigma,
             data_range=data_range,
             reduction=reduction,
             k1=k1,
             k2=k2,
+        )
+
+        super().__init__(
+            metric_fn=metric_fn,
+            input_key=input_key,
+            target_key=target_key,
+            metric_key=metric_key,
         )
 
 

@@ -1,7 +1,7 @@
 import copy
 from typing import Optional
 
-from catalyst.registry import MODULE
+from catalyst.registry import REGISTRY
 import torch
 from torch import nn
 
@@ -64,17 +64,17 @@ class VGGConv(nn.Module):
         """
         encoder: nn.Module = nn.Identity()
         if (encoder_params_ := copy.deepcopy(encoder_params)) is not None:
-            encoder_fn = MODULE.get(encoder_params_.pop("module"))
+            encoder_fn = REGISTRY.get(encoder_params_.pop("module"))
             encoder = encoder_fn(**encoder_params_)
 
         pool: nn.Module = nn.Identity()
         if (pooling_params_ := copy.deepcopy(pooling_params)) is not None:
-            pool_fn = MODULE.get(pooling_params_.pop("module"))
+            pool_fn = REGISTRY.get(pooling_params_.pop("module"))
             pool = pool_fn(**pooling_params_)
 
         head: nn.Module = nn.Identity()
         if (head_params_ := copy.deepcopy(head_params)) is not None:
-            head_fn = MODULE.get(head_params_.pop("module"))
+            head_fn = REGISTRY.get(head_params_.pop("module"))
             head = head_fn(**head_params_)
 
         net = cls(encoder=encoder, pool=pool, head=head)
