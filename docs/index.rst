@@ -52,6 +52,14 @@ Setup environment
 
    pip install git+https://github.com/leverxgroup/esrgan.git
 
+or install with ``Poetry``
+
+::
+
+   git clone https://github.com/leverxgroup/esrgan.git
+   cd esrgan
+   poetry install
+
 Run an experiment
 -----------------
 

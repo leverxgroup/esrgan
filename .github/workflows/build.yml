@@ -1,4 +1,4 @@
-name: codestyle
+name: build
 
 on:
   push:
@@ -40,5 +40,16 @@ jobs:
 
       - name: Check codestyle
         run: |
-          poetry run flake8 --show-source --statistics --count -- esrgan
-          poetry run doc8 -q --max-line-length 119 docs
+          poetry run flake8 --show-source --statistics --count -- .
+          poetry run isort --check-only -- .
+          poetry run mypy -- .
+          poetry run doc8 -q -- docs
+
+      # - name: Unit tests
+      #   run: |
+      #     poetry run pytest .
+
+      - name: Check dependencies compatibility
+        run: |
+          poetry run poetry check
+          poetry run pip check

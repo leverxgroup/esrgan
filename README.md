@@ -26,11 +26,16 @@ Key points of ESRGAN:
 ## Quick Start
 
 ### Setup environment
-`esrgan` requires python >= 3.8. The [requirements.txt](requirements.txt) file can be used to install the necessary packages.
-
+```bash
+pip install git+https://github.com/leverxgroup/esrgan.git
 ```
-git clone  https://github.com/leverxgroup/esrgan.git
-pip install ./esrgan
+
+or install with `Poetry`
+
+```bash
+git clone https://github.com/leverxgroup/esrgan.git
+cd esrgan
+poetry install
 ```
 
 ### Run an experiment
