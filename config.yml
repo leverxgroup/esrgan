@@ -1,0 +1,346 @@
+shared:
+  upscale: &upscale 4  # 2, 4, 8
+  patch_size: &patch_size 128  # 40, 64, 96, 128, 192
+
+model:
+  _target_: ModuleDict
+  modules:
+    &generator_model generator:
+      _target_: esrgan.model.EncoderDecoderNet
+      encoder_params:
+        module: esrgan.model.module.ESREncoder
+        in_channels: &num_channels 3
+        out_channels: &latent_channels 64
+        num_basic_blocks: 16
+        growth_channels: 32
+        activation_fn: &activation_fn
+          activation: LeakyReLU
+          negative_slope: 0.2
+          inplace: true
+        residual_scaling: 0.2
+      decoder_params:
+        module: esrgan.model.module.SRResNetDecoder
+        in_channels: *latent_channels
+        out_channels: *num_channels
+        scale_factor: *upscale
+        activation_fn: *activation_fn
+
+    &discriminator_model discriminator:
+      _target_: esrgan.model.VGGConv
+      encoder_params:
+        module: esrgan.model.module.StridedConvEncoder
+        layer_order: [conv,norm,activation]
+        norm_fn: BatchNorm2d
+        # layer_order: [conv,activation]
+        # conv_fn: esrgan.model.module.Conv2dSN
+      pooling_params:
+        module: AdaptiveAvgPool2d
+        output_size: [7,7]
+      head_params:
+        module: esrgan.model.module.LinearHead
+        in_channels: 25088  # 512 * (7x7)
+        out_channels: 1
+        latent_channels: [1024]
+        layer_order: [linear,activation]
+        # linear_fn: esrgan.LinearSN
+
+args:
+  # TODO: fix expdir, expdir should be optional
+  expdir: tmp
+  logdir: ./logs/cata21.06/09-esrgan_x4_192ps
+  # logdir: ./logs/cata21.06/02-esrgan_x4_192ps/gan
+  # logdir: ./logs/cata21.06/01-esrgan_x4_192ps/supervised
+
+runner:
+  _target_: esrgan.runner.GANConfigRunner
+  generator_key: *generator_model
+  discriminator_key: *discriminator_model
+
+engine:
+  _target_: AMPEngine
+
+# loggers: {}
+  # console:
+  #   _target_: ConsoleLogger
+  # tensorboard:
+  #   _target_: TensorboardLogger
+  #   logdir: *logdir
+  #   use_logdir_postfix: true
+
+stages:
+  stage1_supervised:
+    num_epochs: 2  # TODO: 40
+
+    loaders: &loaders
+      train: &train_loader
+        _target_: DataLoader
+        dataset: &train_dataset
+          _target_: esrgan.dataset.DIV2KDataset
+          root: data
+          train: true
+          target_type: bicubic_X4
+          patch_size: [*patch_size,*patch_size]
+          transform:
+            _target_: albumentations.Compose
+            transforms:
+              - &spatial_transforms
+                _target_: albumentations.Compose
+                transforms:
+                  - _target_: albumentations.HorizontalFlip
+                    p: 0.5
+                additional_targets:
+                  real_image: image
+              - &hard_transforms
+                _target_: albumentations.Compose
+                transforms:
+                  - _target_: albumentations.CoarseDropout
+                    max_holes: 2
+                    max_height: 2
+                    max_width: 2
+                  - _target_: albumentations.ImageCompression
+                    quality_lower: 65
+                    p: 0.25
+              - &post_transforms
+                _target_: albumentations.Compose
+                transforms:
+                  - _target_: albumentations.Normalize
+                    mean: 0
+                    std: 1
+                  - _target_: albumentations.ToTensorV2
+                additional_targets:
+                  real_image: image
+          low_resolution_image_key: image
+          high_resolution_image_key: real_image
+          download: false  # TODO: true
+        batch_size: 16
+        shuffle: true
+        num_workers: 8
+        # pin_memory: true
+        # drop_last: true
+
+      valid:
+        << : [*train_loader]
+        dataset:
+          << : [*train_dataset]
+          train: false
+          transform: *post_transforms
+        batch_size: 1
+
+    criterion:
+      content_loss:
+        _target_: L1Loss  # `L1Loss`, `MSELoss`
+
+    optimizer:
+      _key_value: true
+
+      generator_optimizer:
+        _target_: Ralamb  # AdamW
+        lr_linear_scaling:
+          lr: 0.003  # 0.0001
+          base_batch_size: &base_batch_size 16
+        weight_decay: 0.0
+        _model: *generator_model
+
+    scheduler:
+      _key_value: true
+
+      generator_scheduler:
+        _target_: MultiStepLR
+        milestones: [8,20,28]
+        gamma: 0.5
+        _optimizer: generator_optimizer
+
+    callbacks: &callbacks
+      psnr_metric:
+        _target_: FunctionalMetricCallback
+        metric_fn:
+          _target_: piq.psnr
+          data_range: 1.0
+          reduction: mean
+          convert_to_greyscale: false
+        input_key: real_image
+        target_key: fake_image
+        metric_key: psnr
+      ssim_metric:
+        _target_: FunctionalMetricCallback
+        metric_fn:
+          _target_: piq.ssim
+          kernel_size: 11
+          kernel_sigma: 1.5
+          data_range: 1.0
+          reduction: mean
+          k1: 0.01
+          k2: 0.03
+        input_key: real_image
+        target_key: fake_image
+        metric_key: ssim
+
+      loss_content:
+        _target_: CriterionCallback
+        input_key: real_image
+        target_key: fake_image
+        metric_key: loss_content
+        criterion_key: content_loss
+
+      optimizer_generator:
+        _target_: OptimizerCallback
+        metric_key: loss_content
+        optimizer_key: generator_optimizer
+        grad_clip_fn: &grad_clip_fn clip_grad_value_
+        grad_clip_params: &grad_clip_params
+          clip_value: 5.0
+
+      scheduler_generator:
+        _target_: SchedulerCallback
+        scheduler_key: generator_scheduler
+        loader_key: valid
+        metric_key: loss_content
+
+      # verbose:
+      #   _target_: TqdmCallback
+
+  stage2_gan:
+    num_epochs: 2 # TODO: 16
+
+    loaders:
+      << : [*loaders]
+      train:
+        << : [*train_loader]
+        dataset:
+          << : [*train_dataset]
+          transform:
+            _target_: albumentations.Compose
+            transforms:
+              - *spatial_transforms
+              - *post_transforms
+        batch_size: 32  # TODO: 48
+
+    criterion:
+      content_loss:
+        _target_: L1Loss  # L1Loss, MSELoss
+
+      # perceptual_loss:
+      #   _target_: esrgan.criterions.PerceptualLoss
+      #   layers:
+      #     conv5_4: 1.0
+
+      # TODO: fix GAN losses
+      adversarial_generator_loss:
+        _target_: &adversarial_criterion esrgan.criterions.RelativisticAdversarialLoss  # AdversarialLoss
+        mode: generator
+      adversarial_discriminator_loss:
+        _target_: *adversarial_criterion
+        mode: discriminator
+
+    optimizer:
+      _key_value: true
+
+      generator_optimizer:
+        _target_: AdamW
+        lr_linear_scaling:
+          lr: 0.00003
+          base_batch_size: *base_batch_size
+        weight_decay: 0.0
+        _model: *generator_model
+
+      discriminator_optimizer:
+        _target_: AdamW
+        lr_linear_scaling:
+          lr: 0.0001
+          base_batch_size: *base_batch_size
+        weight_decay: 0.0
+        _model: *discriminator_model
+
+    scheduler:
+      _key_value: true
+
+      generator_scheduler:
+        _target_: MultiStepLR
+        milestones: [16,24,32]
+        gamma: 0.5
+        _optimizer: generator_optimizer
+
+      discriminator_scheduler:
+        _target_: MultiStepLR
+        milestones: [8,16,24,32]
+        gamma: 0.5
+        _optimizer: discriminator_optimizer
+
+    callbacks:
+      << : [*callbacks]
+
+      # TODO: tmp, remove after GAN's losses debug
+      # loader:
+      #   _target_: CheckpointCallback
+      #   logdir: ./logs/cata21.06/01-esrgan_x4_192ps/supervised
+      #   load_on_stage_start:
+      #     model: ./logs/cata21.06/01-esrgan_x4_192ps/supervised/last.pth
+
+      loss_content:
+        _target_: CriterionCallback
+        input_key: real_image
+        target_key: fake_image
+        metric_key: loss_content
+        criterion_key: content_loss
+      # loss_perceptual:
+      #   _target_: CriterionCallback
+      #   input_key: real_image
+      #   target_key: fake_image
+      #   metric_key: loss_perceptual
+      #   criterion_key: perceptual_loss
+      loss_adversarial_generator:
+        _target_: CriterionCallback
+        # TODO: fix keys
+        # input_key: {}
+        # target_key:
+        #   g_real_logits: real_logits
+        #   g_fake_logits: fake_logits
+        input_key: g_fake_logits  # first argument of criterion is fake_logits
+        target_key: g_real_logits  # second argument of criterion is real_logits
+        metric_key: loss_adversarial_generator
+        criterion_key: adversarial_generator_loss
+      loss_generator:
+        _target_: MetricAggregationCallback
+        metric_key: &generator_loss loss_generator
+        metrics:
+          loss_content: 0.01
+          # loss_perceptual: 1.0
+          loss_adversarial_generator: 0.05
+        mode: weighted_sum
+
+      loss_discriminator:
+        _target_: CriterionCallback
+        # input_key: {}
+        # target_key:
+        #   d_real_logits: real_logits
+        #   d_fake_logits: fake_logits
+        # input_key: input key to use for metric calculation, specifies our `y_pred`
+        # target_key: output key to use for metric calculation, specifies our `y_true`
+        input_key: d_fake_logits  # first argument of criterion is fake_logits
+        target_key: d_real_logits  # second argument of criterion is real_logits
+        metric_key: &discriminator_loss loss_discriminator
+        criterion_key: adversarial_discriminator_loss
+
+      optimizer_generator:
+        _target_: OptimizerCallback
+        metric_key: *generator_loss
+        optimizer_key: generator_optimizer
+        grad_clip_fn: *grad_clip_fn
+        grad_clip_params: *grad_clip_params
+      optimizer_discriminator:
+        _target_: OptimizerCallback
+        metric_key: *discriminator_loss
+        optimizer_key: discriminator_optimizer
+        grad_clip_fn: *grad_clip_fn
+        grad_clip_params: *grad_clip_params
+
+      scheduler_generator:
+        _target_: SchedulerCallback
+        scheduler_key: generator_scheduler
+        loader_key: valid
+        metric_key: *generator_loss
+      scheduler_discriminator:
+        _target_: SchedulerCallback
+        scheduler_key: discriminator_scheduler
+        loader_key: valid
+        metric_key: *discriminator_loss
