@@ -1,7 +1,10 @@
 from typing import Dict
 
+from catalyst import runners
 from catalyst.core.runner import IRunner
 import torch
+
+__all__ = ["GANRunner", "GANConfigRunner"]
 
 
 class GANRunner(IRunner):
@@ -59,6 +62,8 @@ class GANRunner(IRunner):
         self.discriminator_real_output_dkey = discriminator_real_output_dkey
         self.discriminator_fake_output_dkey = discriminator_fake_output_dkey
 
+        self.epoch_counter = -1  # TODO: remove
+
     def predict_batch(self, batch: Dict[str, torch.Tensor]) -> torch.Tensor:
         """Generate predictions based on input batch (generator inference).
 
@@ -83,7 +88,8 @@ class GANRunner(IRunner):
         """
         # `handle_batch` method is `@abstractmethod` so it must be defined
         # even if it overwrites in `on_stage_start`
-        self.batch = {**batch}
+        # self.batch = {**batch}
+        self._handle_batch_supervised(batch=batch)
 
     def _handle_batch_supervised(self, batch: Dict[str, torch.Tensor]) -> None:
         """Process train/valid batch, supervised mode.
@@ -96,6 +102,17 @@ class GANRunner(IRunner):
         output = model(batch[self.input_key])
 
         self.batch = {**batch, self.generator_output_key: output}
+
+        # TODO: remove {
+        if self.global_epoch_step > self.epoch_counter:
+            self.epoch_counter = self.global_epoch_step
+
+            self.log_image(tag=f'real image 0', image=tensor_to_ndimage(batch['real_image'][0, ...].detach().cpu()))
+            self.log_image(tag=f'real image 4', image=tensor_to_ndimage(batch['real_image'][4, ...].detach().cpu()))
+
+            self.log_image(tag=f'fake image 0', image=tensor_to_ndimage(output[0, ...].detach().cpu()))
+            self.log_image(tag=f'fake image 4', image=tensor_to_ndimage(output[4, ...].detach().cpu()))
+        # TODO: } remove
 
     def _handle_batch_gan(self, batch: Dict[str, torch.Tensor]) -> None:
         """Process train/valid batch, GAN mode.
@@ -111,7 +128,7 @@ class GANRunner(IRunner):
         real_image = batch[self.target_key]
         fake_image = generator(batch[self.input_key])
 
-        noise = torch.randn(real_image.shape, device=self.device)
+        noise = torch.randn(real_image.shape, device=real_image.device)
         real_image = torch.clamp((real_image + 0.05 * noise), min=0.0, max=1.0)
 
         # predictions used in calculation of adversarial loss of generator
@@ -130,6 +147,17 @@ class GANRunner(IRunner):
             self.discriminator_real_output_dkey: real_logits_d,
             self.discriminator_fake_output_dkey: fake_logits_d,
         }
+
+        # TODO: remove {
+        if self.global_epoch_step > self.epoch_counter:
+            self.epoch_counter = self.global_epoch_step
+
+            self.log_image(tag=f'real image 0', image=tensor_to_ndimage(batch['real_image'][0, ...].detach().cpu()))
+            self.log_image(tag=f'real image 4', image=tensor_to_ndimage(batch['real_image'][4, ...].detach().cpu()))
+
+            self.log_image(tag=f'fake image 0', image=tensor_to_ndimage(fake_image[0, ...].detach().cpu()))
+            self.log_image(tag=f'fake image 4', image=tensor_to_ndimage(fake_image[4, ...].detach().cpu()))
+        # TODO: } remove
 
     def on_stage_start(self, runner: IRunner) -> None:
         """Prepare `_handle_batch` method for current stage.
@@ -153,4 +181,82 @@ class GANRunner(IRunner):
             raise NotImplementedError()
 
 
-__all__ = ["GANRunner"]
+class GANConfigRunner(runners.ConfigRunner, GANRunner):
+    def __init__(
+        self,
+        config: dict,
+        input_key: str = "image",
+        target_key: str = "real_image",
+        generator_output_key: str = "fake_image",
+        discriminator_real_output_gkey: str = "g_real_logits",
+        discriminator_fake_output_gkey: str = "g_fake_logits",
+        discriminator_real_output_dkey: str = "d_real_logits",
+        discriminator_fake_output_dkey: str = "d_fake_logits",
+        generator_key: str = "generator",
+        discriminator_key: str = "discriminator",
+    ):
+        GANRunner.__init__(
+            self,
+            input_key=input_key,
+            target_key=target_key,
+            generator_output_key=generator_output_key,
+            discriminator_real_output_gkey=discriminator_real_output_gkey,
+            discriminator_fake_output_gkey=discriminator_fake_output_gkey,
+            discriminator_real_output_dkey=discriminator_real_output_dkey,
+            discriminator_fake_output_dkey=discriminator_fake_output_dkey,
+            generator_key=generator_key,
+            discriminator_key=discriminator_key,
+        )
+
+        runners.ConfigRunner.__init__(self, config=config)
+
+
+# TODO: remove {
+import numpy as np
+from typing import Tuple
+def tensor_to_ndimage(
+    images: torch.Tensor,
+    denormalize: bool = True,
+    mean: Tuple[float, float, float] = (0, 0, 0),
+    std: Tuple[float, float, float] = (1, 1, 1),
+    move_channels_dim: bool = True,
+    dtype=np.float32,
+) -> np.ndarray:
+    """
+    Convert float image(s) with standard normalization to
+    np.ndarray with [0..1] when dtype is np.float32 and [0..255]
+    when dtype is `np.uint8`.
+    Args:
+        images: [B]xCxHxW float tensor
+        denormalize: if True, multiply image(s) by std and add mean
+        mean (Tuple[float, float, float]): per channel mean to add
+        std (Tuple[float, float, float]): per channel std to multiply
+        move_channels_dim: if True, convert tensor to [B]xHxWxC format
+        dtype: result ndarray dtype. Only float32 and uint8 are supported
+    Returns:
+        [B]xHxWxC np.ndarray of dtype
+    """
+    if denormalize:
+        has_batch_dim = len(images.shape) == 4
+
+        mean = images.new_tensor(mean).view(
+            *((1,) if has_batch_dim else ()), len(mean), 1, 1
+        )
+        std = images.new_tensor(std).view(
+            *((1,) if has_batch_dim else ()), len(std), 1, 1
+        )
+
+        images = images * std + mean
+
+    images = images.float().clamp(0, 1).numpy()
+
+    if move_channels_dim:
+        images = np.moveaxis(images, -3, -1)
+
+    if dtype == np.uint8:
+        images = (images * 255).round().astype(dtype)
+    else:
+        assert dtype == np.float32, "Only float32 and uint8 are supported"
+
+    return images
+# TODO: } remove
