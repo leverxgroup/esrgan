@@ -6,63 +6,6 @@ from typing import Any, Callable, Dict, Optional
 from catalyst.registry import REGISTRY
 from torch import nn
 
-from esrgan.utils.types import ModuleParams
-
-
-def process_fn_params(function: Callable) -> Callable:
-    """Decorator for `fn_params` processing.
-
-    Decorator that process all `*_fn` parameters and replaces ``str`` and
-    ``dict`` values with corresponding constructors of `nn` modules.
-    For example for ``act_fn='ReLU'`` and ``act_fn=nn.ReLU`` parameters
-    the result will be ``nn.ReLU`` constructor of ReLU activation function,
-    and for ``act_fn={'act': 'ReLU', 'inplace': True}`` the result
-    will be 'partial' constructor ``nn.ReLU`` in which
-    ``inplace`` argument is set to ``True``.
-
-    Args:
-        function: Function to wrap.
-
-    Returns:
-        Wrapped function.
-
-    """
-    @functools.wraps(function)
-    def wrapper(*args: Any, **kwargs: Any) -> Any:
-        kwargs_: Dict[str, Any] = {}
-        for key, value in kwargs.items():
-            if (match := re.match(r"(\w+)_fn", key)) and value:
-                value = _process_fn_params(
-                    params=value, key=match.group(1)
-                )
-            kwargs_[key] = value
-
-        output = function(*args, **kwargs_)
-
-        return output
-    return wrapper
-
-
-def _process_fn_params(
-    params: ModuleParams, key: Optional[str] = None
-) -> Callable[..., nn.Module]:
-    module_fn: Callable[..., nn.Module]
-    if callable(params):
-        module_fn = params
-    elif isinstance(params, str):
-        name = params
-        module_fn = REGISTRY.get(name)
-    elif isinstance(params, dict) and key is not None:
-        params = copy.deepcopy(params)
-
-        name_or_fn = params.pop(key)
-        module_fn = _process_fn_params(name_or_fn)
-        module_fn = functools.partial(module_fn, **params)
-    else:
-        NotImplementedError()
-
-    return module_fn
-
 
 def create_layer(
     layer: Callable[..., nn.Module],
@@ -103,4 +46,4 @@ def create_layer(
     return module
 
 
-__all__ = ["process_fn_params", "create_layer"]
+__all__ = ["create_layer"]

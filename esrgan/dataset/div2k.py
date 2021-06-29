@@ -3,7 +3,7 @@ from pathlib import Path
 import random
 from typing import Callable, Dict, Iterable, List, Optional, Tuple
 
-from albumentations.augmentations import functional as F
+from albumentations.augmentations.crops import functional as F
 from catalyst import data, utils
 from catalyst.contrib.datasets.functional import download_and_extract_archive
 import numpy as np
@@ -136,7 +136,7 @@ class DIV2KDataset(Dataset):
         self.target_patch_size = patch_size
         self.input_patch_size = (height // self.scale, width // self.scale)
 
-        self.transform = transform if transform is not None else lambda x: x
+        self.transform = lambda dict_: transform(**dict_) if transform is not None else lambda x: x
 
     def __getitem__(self, index: int) -> Dict:
         """Gets element of the dataset.

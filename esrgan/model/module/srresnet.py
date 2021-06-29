@@ -1,12 +1,11 @@
 import collections
-from typing import List, Tuple
+from typing import List, Tuple, Callable
 
 import torch
 from torch import nn
 
 from esrgan import utils
 from esrgan.model.module import blocks
-from esrgan.utils.types import ModuleParams
 
 
 class SRResNetEncoder(nn.Module):
@@ -19,24 +18,27 @@ class SRResNetEncoder(nn.Module):
         in_channels: Number of channels in the input image.
         out_channels: Number of channels produced by the encoder.
         num_basic_blocks: Depth of the encoder, number of basic blocks to use.
-        conv_fn: Convolutional layers parameters.
-        norm_fn: Batch norm layer to use.
-        activation_fn: Activation function to use after BN layers.
+        conv: Class constructor or partial object which when called
+            should return convolutional layer e.g., :py:class:`nn.Conv2d`.
+        norm: Class constructor or partial object which when called should
+            return normalization layer e.g., :py:class:`.nn.BatchNorm2d`.
+        activation: Class constructor or partial object which when called
+            should return activation function to use after BN layers
+            e.g., :py:class:`nn.PReLU`.
 
     .. _`Photo-Realistic Single Image Super-Resolution Using a Generative
         Adversarial Network`: https://arxiv.org/pdf/1609.04802.pdf
 
     """
 
-    @utils.process_fn_params
     def __init__(
         self,
         in_channels: int = 3,
         out_channels: int = 64,
         num_basic_blocks: int = 16,
-        conv_fn: ModuleParams = blocks.Conv2d,
-        norm_fn: ModuleParams = nn.BatchNorm2d,
-        activation_fn: ModuleParams = nn.PReLU,
+        conv: Callable[..., nn.Module] = blocks.Conv2d,
+        norm: Callable[..., nn.Module] = nn.BatchNorm2d,
+        activation: Callable[..., nn.Module] = nn.PReLU,
     ) -> None:
         super().__init__()
 
@@ -45,24 +47,24 @@ class SRResNetEncoder(nn.Module):
 
         # first conv
         first_conv = nn.Sequential(
-            conv_fn(in_channels, num_features), activation_fn()
+            conv(in_channels, num_features), activation()
         )
         blocks_list.append(first_conv)
 
         # basic blocks - sequence of B residual blocks
         for _ in range(num_basic_blocks):
             basic_block = nn.Sequential(
-                conv_fn(num_features, num_features),
-                norm_fn(num_features,),
-                activation_fn(),
-                conv_fn(num_features, num_features),
-                norm_fn(num_features),
+                conv(num_features, num_features),
+                norm(num_features,),
+                activation(),
+                conv(num_features, num_features),
+                norm(num_features),
             )
             blocks_list.append(blocks.ResidualModule(basic_block))
 
         # last conv of the encoder
         last_conv = nn.Sequential(
-            conv_fn(num_features, out_channels), norm_fn(out_channels),
+            conv(num_features, out_channels), norm(out_channels),
         )
         blocks_list.append(last_conv)
 
@@ -97,22 +99,23 @@ class SRResNetDecoder(nn.Module):
         scale_factor: Ratio between the size of the high-resolution image
             (output) and its low-resolution counterpart (input).
             In other words multiplier for spatial size.
-        conv_fn: Convolutional layers parameters.
-        activation_fn: Activation function to use.
+        conv: Class constructor or partial object which when called
+            should return convolutional layer e.g., :py:class:`nn.Conv2d`.
+        activation: Class constructor or partial object which when called
+            should return activation function to use e.g., :py:class:`nn.ReLU`.
 
     .. _`Photo-Realistic Single Image Super-Resolution Using a Generative
         Adversarial Network`: https://arxiv.org/pdf/1609.04802.pdf
 
     """
 
-    @utils.process_fn_params
     def __init__(
         self,
         in_channels: int = 64,
         out_channels: int = 3,
         scale_factor: int = 2,
-        conv_fn: ModuleParams = blocks.Conv2d,
-        activation_fn: ModuleParams = nn.PReLU,
+        conv: Callable[..., nn.Module] = blocks.Conv2d,
+        activation: Callable[..., nn.Module] = nn.PReLU,
     ) -> None:
         super().__init__()
 
@@ -128,13 +131,13 @@ class SRResNetDecoder(nn.Module):
         for i in range(scale_factor // 2):
             upsampling_block = blocks.SubPixelConv(
                 num_features=in_channels,
-                conv_fn=conv_fn,
-                activation_fn=activation_fn,
+                conv=conv,
+                activation=activation,
             )
             blocks_list.append((f"upsampling_{i}", upsampling_block))
 
         # highres conv
-        last_conv = conv_fn(in_channels, out_channels)
+        last_conv = conv(in_channels, out_channels)
         blocks_list.append(("conv", last_conv))
 
         self.blocks = nn.Sequential(collections.OrderedDict(blocks_list))

@@ -2,54 +2,50 @@ shared:
   upscale: &upscale 4  # 2, 4, 8
   patch_size: &patch_size 128  # 40, 64, 96, 128, 192
 
+  meta_factory: &partial
+    _target_: catalyst.tools.registry.partial_meta_factory
+
 model:
   _target_: ModuleDict
   modules:
     &generator_model generator:
       _target_: esrgan.model.EncoderDecoderNet
-      encoder_params:
-        module: esrgan.model.module.ESREncoder
+      encoder:
+        _target_: esrgan.model.module.ESREncoder
         in_channels: &num_channels 3
         out_channels: &latent_channels 64
         num_basic_blocks: 16
         growth_channels: 32
-        activation_fn: &activation_fn
-          activation: LeakyReLU
+        activation: &activation
+          _target_: LeakyReLU
           negative_slope: 0.2
           inplace: true
+          meta_factory: *partial  # partial fit
         residual_scaling: 0.2
-      decoder_params:
-        module: esrgan.model.module.SRResNetDecoder
+      decoder:
+        _target_: esrgan.model.module.SRResNetDecoder
         in_channels: *latent_channels
         out_channels: *num_channels
         scale_factor: *upscale
-        activation_fn: *activation_fn
+        activation: *activation
 
     &discriminator_model discriminator:
       _target_: esrgan.model.VGGConv
-      encoder_params:
-        module: esrgan.model.module.StridedConvEncoder
-        layer_order: [conv,norm,activation]
-        norm_fn: BatchNorm2d
-        # layer_order: [conv,activation]
-        # conv_fn: esrgan.model.module.Conv2dSN
-      pooling_params:
-        module: AdaptiveAvgPool2d
+      encoder:
+        _target_: esrgan.model.module.StridedConvEncoder
+      pool:
+        _target_: AdaptiveAvgPool2d
         output_size: [7,7]
-      head_params:
-        module: esrgan.model.module.LinearHead
+      head:
+        _target_: esrgan.model.module.LinearHead
         in_channels: 25088  # 512 * (7x7)
         out_channels: 1
         latent_channels: [1024]
-        layer_order: [linear,activation]
-        # linear_fn: esrgan.LinearSN
 
 args:
-  # TODO: fix expdir, expdir should be optional
+  # TODO: fix expdir in catalyst, expdir should be optional
   expdir: tmp
-  logdir: ./logs/cata21.06/09-esrgan_x4_192ps
-  # logdir: ./logs/cata21.06/02-esrgan_x4_192ps/gan
-  # logdir: ./logs/cata21.06/01-esrgan_x4_192ps/supervised
+  logdir: ./logs/cata21.06/14-esrgan_x4_192ps
 
 runner:
   _target_: esrgan.runner.GANConfigRunner

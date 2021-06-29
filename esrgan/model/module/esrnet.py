@@ -1,12 +1,11 @@
 import collections
-from typing import List, Tuple
+from typing import List, Tuple, Callable
 
 import torch
 from torch import nn
 
 from esrgan import utils
 from esrgan.model.module import blocks
-from esrgan.utils.types import ModuleParams
 
 
 class ESREncoder(nn.Module):
@@ -23,8 +22,10 @@ class ESREncoder(nn.Module):
             Dense block (RRDB) to use.
         num_dense_blocks: Number of dense blocks to use to form `RRDB` block.
         num_residual_blocks: Number of convolutions to use to form dense block.
-        conv_fn: Convolutional layers parameters.
-        activation_fn: Activation function to use after BN layers.
+        conv: Class constructor or partial object which when called
+            should return convolutional layer e.g., :py:class:`nn.Conv2d`.
+        activation: Class constructor or partial object which when called
+            should return activation function to use e.g., :py:class:`nn.ReLU`.
         residual_scaling: Residual connections scaling factor.
 
     .. _`ESRGAN: Enhanced Super-Resolution Generative Adversarial Networks`:
@@ -32,7 +33,6 @@ class ESREncoder(nn.Module):
 
     """
 
-    @utils.process_fn_params
     def __init__(
         self,
         in_channels: int = 3,
@@ -41,8 +41,8 @@ class ESREncoder(nn.Module):
         num_basic_blocks: int = 23,
         num_dense_blocks: int = 3,
         num_residual_blocks: int = 5,
-        conv_fn: ModuleParams = blocks.Conv2d,
-        activation_fn: ModuleParams = blocks.LeakyReLU,
+        conv: Callable[..., nn.Module] = blocks.Conv2d,
+        activation: Callable[..., nn.Module] = blocks.LeakyReLU,
         residual_scaling: float = 0.2,
     ) -> None:
         super().__init__()
@@ -50,7 +50,7 @@ class ESREncoder(nn.Module):
         blocks_list: List[nn.Module] = []
 
         # first conv
-        first_conv = conv_fn(in_channels, out_channels)
+        first_conv = conv(in_channels, out_channels)
         blocks_list.append(first_conv)
 
         # basic blocks - sequence of rrdb layers
@@ -58,8 +58,8 @@ class ESREncoder(nn.Module):
             basic_block = blocks.ResidualInResidualDenseBlock(
                 num_features=out_channels,
                 growth_channels=growth_channels,
-                conv_fn=conv_fn,
-                activation_fn=activation_fn,
+                conv=conv,
+                activation=activation,
                 num_dense_blocks=num_dense_blocks,
                 num_blocks=num_residual_blocks,
                 residual_scaling=residual_scaling,
@@ -67,7 +67,7 @@ class ESREncoder(nn.Module):
             blocks_list.append(basic_block)
 
         # last conv of the encoder
-        last_conv = conv_fn(out_channels, out_channels)
+        last_conv = conv(out_channels, out_channels)
         blocks_list.append(last_conv)
 
         self.blocks = nn.ModuleList(blocks_list)
@@ -101,22 +101,23 @@ class ESRNetDecoder(nn.Module):
         scale_factor: Ratio between the size of the high-resolution image
             (output) and its low-resolution counterpart (input).
             In other words multiplier for spatial size.
-        conv_fn: Convolutional layers parameters.
-        activation_fn: Activation function to use.
+        conv: Class constructor or partial object which when called
+            should return convolutional layer e.g., :py:class:`nn.Conv2d`.
+        activation: Class constructor or partial object which when called
+            should return activation function to use e.g., :py:class:`nn.ReLU`.
 
     .. _`ESRGAN: Enhanced Super-Resolution Generative Adversarial Networks`:
         https://arxiv.org/pdf/1809.00219.pdf
 
     """
 
-    @utils.process_fn_params
     def __init__(
         self,
         in_channels: int = 64,
         out_channels: int = 3,
         scale_factor: int = 2,
-        conv_fn: ModuleParams = blocks.Conv2d,
-        activation_fn: ModuleParams = blocks.LeakyReLU,
+        conv: Callable[..., nn.Module] = blocks.Conv2d,
+        activation: Callable[..., nn.Module] = blocks.LeakyReLU,
     ) -> None:
         super().__init__()
 
@@ -132,16 +133,16 @@ class ESRNetDecoder(nn.Module):
         for i in range(scale_factor // 2):
             upsampling_block = blocks.InterpolateConv(
                 num_features=in_channels,
-                conv_fn=conv_fn,
-                activation_fn=activation_fn,
+                conv=conv,
+                activation=activation,
             )
             blocks_list.append((f"upsampling_{i}", upsampling_block))
 
         # highres conv + last conv
         last_conv = nn.Sequential(
-            conv_fn(in_channels, in_channels),
-            activation_fn(),
-            conv_fn(in_channels, out_channels),
+            conv(in_channels, in_channels),
+            activation(),
+            conv(in_channels, out_channels),
         )
         blocks_list.append(("conv", last_conv))
 
