@@ -2,10 +2,8 @@ shared:
   upscale: &upscale 4  # 2, 4, 8
   patch_size: &patch_size 128  # 40, 64, 96, 128, 192
 
-model:
-  _target_: torch.nn.ModuleDict
-  modules:
-    &generator_model generator:
+  models:
+    generator_model: &generator_model_
       _target_: esrgan.model.EncoderDecoderNet
       encoder:
         _target_: esrgan.model.module.ESREncoder
@@ -26,7 +24,7 @@ model:
         scale_factor: *upscale
         activation: *activation
 
-    &discriminator_model discriminator:
+    discriminator_model: &discriminator_model_
       _target_: esrgan.model.VGGConv
       encoder:
         _target_: esrgan.model.module.StridedConvEncoder
@@ -39,6 +37,18 @@ model:
         out_channels: 1
         latent_channels: [1024]
 
+model:
+  # TODO: fix `TypeError: 'DistributedDataParallel' object is not subscriptable`
+  # _target_: torch.nn.ModuleDict
+  # modules:
+  #   *generator_model : *generator_model_
+  #   *discriminator_model : *discriminator_model_
+
+  _key_value: true
+
+  &generator_model generator: *generator_model_
+  &discriminator_model discriminator: *discriminator_model_
+
 args:
   logdir: ./logs/cata21.06/14-esrgan_x4_192ps
 
@@ -47,12 +57,9 @@ runner:
   generator_key: *generator_model
   discriminator_key: *discriminator_model
 
-# engine:
-#   _target_: AMPEngine
-
 stages:
   stage1_supervised:
-    num_epochs: 2  # TODO: 40
+    num_epochs: 1000  # TODO: 40
 
     loaders: &loaders
       train: &train_loader
@@ -94,10 +101,10 @@ stages:
                   real_image: image
           low_resolution_image_key: image
           high_resolution_image_key: real_image
-          download: true
-        batch_size: 4
+          download: false  # TODO: set to `true` by default
+        batch_size: 48
         shuffle: true
-        num_workers: 7
+        num_workers: 8
         pin_memory: true
         drop_last: true
 
@@ -120,7 +127,7 @@ stages:
       generator_optimizer:
         _target_: catalyst.contrib.optimizers.Ralamb  # AdamW
         lr_linear_scaling:
-          lr: 0.003  # 0.0001
+          lr: 0.009  # 0.0001
           base_batch_size: &base_batch_size 16
         weight_decay: 0.0
         _model: *generator_model
@@ -169,6 +176,7 @@ stages:
       optimizer_generator:
         _target_: catalyst.callbacks.OptimizerCallback
         metric_key: loss_content
+        model_key: *generator_model
         optimizer_key: generator_optimizer
         grad_clip_fn: &grad_clip_fn clip_grad_value_
         grad_clip_params: &grad_clip_params

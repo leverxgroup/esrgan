@@ -1,7 +1,9 @@
+import copy
 from typing import Dict
 
 from catalyst import runners
 from catalyst.core.runner import IRunner
+from catalyst.registry import REGISTRY
 import torch
 
 __all__ = ["GANRunner", "GANConfigRunner"]
@@ -210,6 +212,23 @@ class GANConfigRunner(runners.ConfigRunner, GANRunner):
 
         runners.ConfigRunner.__init__(self, config=config)
 
+    @staticmethod
+    def _get_model_from_params(**params):
+        params = copy.deepcopy(params)
+        is_key_value = params.pop("_key_value", False)
+
+        if is_key_value:
+            model = {
+                model_key: runners.ConfigRunner._get_model_from_params(
+                    **model_params
+                )
+                for model_key, model_params in params.items()
+            }
+            # TODO: hotfix for DDP
+            # model = nn.ModuleDict(model)
+        else:
+            model = REGISTRY.get_from_params(**params)
+        return model
 
 # TODO: remove {
 import numpy as np
