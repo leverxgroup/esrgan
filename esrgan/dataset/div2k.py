@@ -5,7 +5,7 @@ from typing import Callable, Dict, Iterable, List, Optional, Tuple
 
 from albumentations.augmentations.crops import functional as F
 from catalyst import data, utils
-from catalyst.contrib.datasets.functional import download_and_extract_archive
+from catalyst.contrib.datasets import misc
 import numpy as np
 from torch.utils.data import Dataset
 
@@ -96,7 +96,7 @@ class DIV2KDataset(Dataset):
         filename_lr = f"DIV2K_{mode}_LR_{target_type}.zip"
         if download:
             # download HR (target) images
-            download_and_extract_archive(
+            misc.download_and_extract_archive(
                 f"{self.url}{filename_hr}",
                 download_root=root,
                 filename=filename_hr,
@@ -104,7 +104,7 @@ class DIV2KDataset(Dataset):
             )
 
             # download lr (input) images
-            download_and_extract_archive(
+            misc.download_and_extract_archive(
                 f"{self.url}{filename_lr}",
                 download_root=root,
                 filename=filename_lr,

@@ -40,12 +40,13 @@ esrgan-process-images = 'esrgan.utils.scripts.process_images:main'
 [tool.poetry.dependencies]
 python = "^3.8"
 
-catalyst = {version = "~21.7", extras = ["cv", "albu"]}
+# catalyst = { version = "~21.12", extras = ["cv", "albu"] }
+catalyst = { git = "https://github.com/catalyst-team/catalyst.git", rev = "1c6cfdb2c2b1dc4a6be222a904bc76f851cb71bf", extras = ["cv", "albu"] }
 jpeg4py = "^0.1.4"
 numpy = "^1.19.1"
-piq = "~0.5.5"
-torch = "~1.7.1"
-torchvision = "~0.8.2"
+piq = "~0.6.0"
+torch = "~1.8.1"
+torchvision = "~0.9.1"
 
 [tool.poetry.dev-dependencies]
 darglint = "^1.8"

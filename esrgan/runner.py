@@ -49,7 +49,7 @@ class GANRunner(IRunner):
                 model (will be used in gan stages only).
 
         """
-        super().__init__(self)
+        super().__init__()
 
         self.generator_key = generator_key
         self.discriminator_key = discriminator_key
@@ -107,11 +107,11 @@ class GANRunner(IRunner):
         if self.global_epoch_step > self.epoch_counter:
             self.epoch_counter = self.global_epoch_step
 
-            self.log_image(tag=f'real image 0', image=tensor_to_ndimage(batch['real_image'][0, ...].detach().cpu()))
-            self.log_image(tag=f'real image 4', image=tensor_to_ndimage(batch['real_image'][4, ...].detach().cpu()))
+            self.log_image(tag=f'real image 1th', image=tensor_to_ndimage(batch['real_image'][0, ...].detach().cpu()))
+            self.log_image(tag=f'real image 4th', image=tensor_to_ndimage(batch['real_image'][3, ...].detach().cpu()))
 
-            self.log_image(tag=f'fake image 0', image=tensor_to_ndimage(output[0, ...].detach().cpu()))
-            self.log_image(tag=f'fake image 4', image=tensor_to_ndimage(output[4, ...].detach().cpu()))
+            self.log_image(tag=f'fake image 1th', image=tensor_to_ndimage(output[0, ...].detach().cpu()))
+            self.log_image(tag=f'fake image 4th', image=tensor_to_ndimage(output[3, ...].detach().cpu()))
         # TODO: } remove
 
     def _handle_batch_gan(self, batch: Dict[str, torch.Tensor]) -> None:
@@ -152,11 +152,11 @@ class GANRunner(IRunner):
         if self.global_epoch_step > self.epoch_counter:
             self.epoch_counter = self.global_epoch_step
 
-            self.log_image(tag=f'real image 0', image=tensor_to_ndimage(batch['real_image'][0, ...].detach().cpu()))
-            self.log_image(tag=f'real image 4', image=tensor_to_ndimage(batch['real_image'][4, ...].detach().cpu()))
+            self.log_image(tag=f'real image 1th', image=tensor_to_ndimage(batch['real_image'][0, ...].detach().cpu()))
+            self.log_image(tag=f'real image 4th', image=tensor_to_ndimage(batch['real_image'][3, ...].detach().cpu()))
 
-            self.log_image(tag=f'fake image 0', image=tensor_to_ndimage(fake_image[0, ...].detach().cpu()))
-            self.log_image(tag=f'fake image 4', image=tensor_to_ndimage(fake_image[4, ...].detach().cpu()))
+            self.log_image(tag=f'fake image 1th', image=tensor_to_ndimage(fake_image[0, ...].detach().cpu()))
+            self.log_image(tag=f'fake image 4th', image=tensor_to_ndimage(fake_image[3, ...].detach().cpu()))
         # TODO: } remove
 
     def on_stage_start(self, runner: IRunner) -> None:
