@@ -33,6 +33,19 @@ def paired_random_crop(
     return crops
 
 
+# TODO: rename
+class AlbumentationsTransform:
+    def __init__(self, transform: Optional[Callable] = None) -> None:
+        self.transform = transform if transform is not None else self.indentity
+
+    def __call__(self, dict_: dict) -> dict:
+        return self.transform(**dict_)
+
+    @staticmethod
+    def indentity(dict_: dict) -> dict:
+        return dict_
+
+
 class DIV2KDataset(Dataset):
     """`DIV2K <https://data.vision.ee.ethz.ch/cvl/DIV2K>`_ Dataset.
 
@@ -136,7 +149,7 @@ class DIV2KDataset(Dataset):
         self.target_patch_size = patch_size
         self.input_patch_size = (height // self.scale, width // self.scale)
 
-        self.transform = lambda dict_: transform(**dict_) if transform is not None else lambda x: x
+        self.transform = AlbumentationsTransform(transform)
 
     def __getitem__(self, index: int) -> Dict:
         """Gets element of the dataset.
