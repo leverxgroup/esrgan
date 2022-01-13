@@ -1,7 +1,7 @@
 import glob
 from pathlib import Path
 import random
-from typing import Callable, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Callable, Iterable, List, Optional, Tuple
 
 from albumentations.augmentations.crops import functional as F
 from catalyst import data, utils
@@ -33,9 +33,10 @@ def paired_random_crop(
     return crops
 
 
-# TODO: rename
-class AlbumentationsTransform:
-    def __init__(self, transform: Optional[Callable] = None) -> None:
+class Augmentor:
+    def __init__(
+        self, transform: Optional[Callable[[Any], dict]] = None
+    ) -> None:
         self.transform = transform if transform is not None else self.indentity
 
     def __call__(self, dict_: dict) -> dict:
@@ -99,7 +100,7 @@ class DIV2KDataset(Dataset):
         train: bool = True,
         target_type: str = "bicubic_X4",
         patch_size: Tuple[int, int] = (96, 96),
-        transform: Optional[Callable[[Dict], Dict]] = None,
+        transform: Optional[Callable[[Any], dict]] = None,
         low_resolution_image_key: str = "lr_image",
         high_resolution_image_key: str = "hr_image",
         download: bool = False,
@@ -149,9 +150,9 @@ class DIV2KDataset(Dataset):
         self.target_patch_size = patch_size
         self.input_patch_size = (height // self.scale, width // self.scale)
 
-        self.transform = AlbumentationsTransform(transform)
+        self.transform = Augmentor(transform)
 
-    def __getitem__(self, index: int) -> Dict:
+    def __getitem__(self, index: int) -> dict:
         """Gets element of the dataset.
 
         Args:
