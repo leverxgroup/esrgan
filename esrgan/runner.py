@@ -26,7 +26,7 @@ class GANRunner(IRunner):
         generator_key: str = "generator",
         discriminator_key: str = "discriminator",
     ) -> None:
-        """Constructor method for the ``GANRunner`` class.
+        """Constructor method for the :py:class:`GANRunner` class.
 
         Args:
             input_key: Key in batch dict mapping for model input.
@@ -176,7 +176,7 @@ class GANConfigRunner(runners.ConfigRunner, GANRunner):
         generator_key: str = "generator",
         discriminator_key: str = "discriminator",
     ):
-        """Constructor method for the ``GANConfigRunner`` class.
+        """Constructor method for the :py:class:`GANConfigRunner` class.
 
         Args:
             config: Dictionary with parameters e.g., model or engine to use.
