@@ -42,7 +42,7 @@ jobs:
         run: |
           poetry run flake8 --show-source --statistics --count -- .
           poetry run isort --check-only -- .
-          poetry run mypy -- .
+          # poetry run mypy -- .
           poetry run doc8 -q -- docs
 
       # - name: Unit tests

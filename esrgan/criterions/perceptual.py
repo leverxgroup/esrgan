@@ -6,6 +6,8 @@ from torch.nn import functional as F
 from torch.nn.modules.loss import _Loss
 import torchvision
 
+__all__ = ["PerceptualLoss"]
+
 
 def _layer2index_vgg16(layer: str) -> int:
     """Map name of VGG layer to corresponding number in torchvision layer.
@@ -152,6 +154,3 @@ class PerceptualLoss(_Loss):
                 features[name] = x
 
         return features
-
-
-__all__ = ["PerceptualLoss"]

@@ -165,7 +165,7 @@ class GANConfigRunner(runners.ConfigRunner, GANRunner):
 
     def __init__(
         self,
-        config: dict,
+        config: Dict,
         input_key: str = "image",
         target_key: str = "real_image",
         generator_output_key: str = "fake_image",

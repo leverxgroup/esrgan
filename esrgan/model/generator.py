@@ -3,6 +3,8 @@ from torch import nn
 
 from esrgan import utils
 
+__all__ = ["EncoderDecoderNet"]
+
 
 class EncoderDecoderNet(nn.Module):
     """Generalized Encoder-Decoder network.
@@ -39,6 +41,3 @@ class EncoderDecoderNet(nn.Module):
         x = torch.clamp(x, min=0.0, max=1.0)
 
         return x
-
-
-__all__ = ["EncoderDecoderNet"]

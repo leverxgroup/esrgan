@@ -3,6 +3,8 @@ from torch import nn
 
 from esrgan import utils
 
+__all__ = ["VGGConv"]
+
 
 class VGGConv(nn.Module):
     """VGG-like neural network for image classification.
@@ -42,6 +44,3 @@ class VGGConv(nn.Module):
         x = self.head(x)
 
         return x
-
-
-__all__ = ["VGGConv"]

@@ -6,6 +6,8 @@ from torch.nn import functional as F
 
 from esrgan.model.module.blocks.misc import Conv2d, LeakyReLU
 
+__all__ = ["SubPixelConv", "InterpolateConv"]
+
 
 class SubPixelConv(nn.Module):
     """Rearranges elements in a tensor of shape
@@ -104,6 +106,3 @@ class InterpolateConv(nn.Module):
         output = self.block(x)
 
         return output
-
-
-__all__ = ["SubPixelConv", "InterpolateConv"]

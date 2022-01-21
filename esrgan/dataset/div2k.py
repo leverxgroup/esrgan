@@ -9,6 +9,10 @@ from catalyst.contrib.datasets import misc
 import numpy as np
 from torch.utils.data import Dataset
 
+from esrgan.dataset import misc
+
+__all__ = ["DIV2KDataset"]
+
 
 def paired_random_crop(
     images: Iterable[np.ndarray], crops_sizes: Iterable[Tuple[int, int]],
@@ -31,20 +35,6 @@ def paired_random_crop(
     ]
 
     return crops
-
-
-class Augmentor:
-    def __init__(
-        self, transform: Optional[Callable[[Any], dict]] = None
-    ) -> None:
-        self.transform = transform if transform is not None else self.indentity
-
-    def __call__(self, dict_: dict) -> dict:
-        return self.transform(**dict_)
-
-    @staticmethod
-    def indentity(dict_: dict) -> dict:
-        return dict_
 
 
 class DIV2KDataset(Dataset):
@@ -150,7 +140,7 @@ class DIV2KDataset(Dataset):
         self.target_patch_size = patch_size
         self.input_patch_size = (height // self.scale, width // self.scale)
 
-        self.transform = Augmentor(transform)
+        self.transform = misc.Augmentor(transform)
 
     def __getitem__(self, index: int) -> dict:
         """Gets element of the dataset.
@@ -197,6 +187,3 @@ class DIV2KDataset(Dataset):
         images = sorted(filter(utils.has_image_extension, files))
 
         return images
-
-
-__all__ = ["DIV2KDataset"]

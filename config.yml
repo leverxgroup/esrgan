@@ -177,9 +177,10 @@ stages:
         metric_key: loss_content
         model_key: *generator_model
         optimizer_key: generator_optimizer
-        grad_clip_fn: &grad_clip_fn clip_grad_value_
-        grad_clip_params: &grad_clip_params
-          clip_value: 5.0
+        # TODO: fix and add
+        # grad_clip_fn: &grad_clip_fn clip_grad_value_
+        # grad_clip_params: &grad_clip_params
+        #   clip_value: 5.0
 
       scheduler_generator:
         _target_: catalyst.callbacks.SchedulerCallback
@@ -306,14 +307,16 @@ stages:
         _target_: OptimizerCallback
         metric_key: *generator_loss
         optimizer_key: generator_optimizer
-        grad_clip_fn: *grad_clip_fn
-        grad_clip_params: *grad_clip_params
+        # TODO: fix and add
+        # grad_clip_fn: *grad_clip_fn
+        # grad_clip_params: *grad_clip_params
       optimizer_discriminator:
         _target_: OptimizerCallback
         metric_key: *discriminator_loss
         optimizer_key: discriminator_optimizer
-        grad_clip_fn: *grad_clip_fn
-        grad_clip_params: *grad_clip_params
+        # TODO: fix and add
+        # grad_clip_fn: *grad_clip_fn
+        # grad_clip_params: *grad_clip_params
 
       scheduler_generator:
         _target_: SchedulerCallback

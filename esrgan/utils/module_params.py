@@ -2,6 +2,8 @@ from typing import Any, Callable, Optional
 
 from torch import nn
 
+__all__ = ["create_layer"]
+
 
 def create_layer(
     layer: Callable[..., nn.Module],
@@ -40,6 +42,3 @@ def create_layer(
         module = layer(in_channels, out_channels, **kwargs)
 
     return module
-
-
-__all__ = ["create_layer"]

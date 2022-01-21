@@ -6,6 +6,8 @@ from typing import Any, Callable, Optional, Union
 import torch
 from torch import nn
 
+__all__ = ["kaiming_normal_", "module_init_", "net_init_"]
+
 
 def kaiming_normal_(
     tensor: torch.Tensor,
@@ -112,6 +114,3 @@ def net_init_(net: nn.Module) -> None:
             activation = m
 
         module_init_(m, nonlinearity=activation)
-
-
-__all__ = ["kaiming_normal_", "module_init_", "net_init_"]

@@ -2,6 +2,8 @@ import torch
 from torch.nn import functional as F
 from torch.nn.modules.loss import _Loss
 
+__all__ = ["AdversarialLoss", "RelativisticAdversarialLoss"]
+
 
 class AdversarialLoss(_Loss):
     """GAN Loss function.
@@ -131,6 +133,3 @@ class RelativisticAdversarialLoss(_Loss):
         loss = (loss_fr + loss_rf) / 2
 
         return loss
-
-
-__all__ = ["AdversarialLoss", "RelativisticAdversarialLoss"]

@@ -7,6 +7,8 @@ from torch import nn
 from esrgan import utils
 from esrgan.model.module import blocks
 
+__all__ = ["SRResNetEncoder", "SRResNetDecoder"]
+
 
 class SRResNetEncoder(nn.Module):
     """'Encoder' part of SRResNet network, processing images in LR space.
@@ -155,6 +157,3 @@ class SRResNetDecoder(nn.Module):
         output = self.blocks(x)
 
         return output
-
-
-__all__ = ["SRResNetEncoder", "SRResNetDecoder"]

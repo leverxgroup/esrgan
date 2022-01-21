@@ -5,6 +5,8 @@ from torch import nn
 
 from esrgan.model.module.blocks import container, Conv2d, LeakyReLU
 
+__all__ = ["ResidualDenseBlock", "ResidualInResidualDenseBlock"]
+
 
 class ResidualDenseBlock(container.ResidualModule):
     """Basic block of :py:class:`ResidualInResidualDenseBlock`.
@@ -92,6 +94,3 @@ class ResidualInResidualDenseBlock(container.ResidualModule):
             module=nn.Sequential(collections.OrderedDict(blocks)),
             scale=residual_scaling
         )
-
-
-__all__ = ["ResidualDenseBlock", "ResidualInResidualDenseBlock"]
