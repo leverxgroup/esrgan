@@ -13,7 +13,7 @@ def pairwise(iterable: Iterable[Any]) -> Iterable[Any]:
 
     Examples:
         >>> for i in pairwise([1, 2, 5, -3]):
-        >>>     print(i)
+        ...     print(i)
         (1, 2)
         (2, 5)
         (5, -3)

@@ -4,7 +4,6 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from esrgan import utils
 from esrgan.model.module.blocks.misc import Conv2d, LeakyReLU
 
 

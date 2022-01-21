@@ -1,5 +1,5 @@
 import collections
-from typing import List, Tuple, Callable
+from typing import Callable, List, Tuple
 
 import torch
 from torch import nn

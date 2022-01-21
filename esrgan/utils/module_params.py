@@ -1,9 +1,5 @@
-import copy
-import functools
-import re
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Optional
 
-from catalyst.registry import REGISTRY
 from torch import nn
 
 

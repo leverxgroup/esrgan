@@ -1,9 +1,8 @@
 import collections
-from typing import Any, List, Tuple, Callable
+from typing import Any, Callable, List, Tuple
 
 from torch import nn
 
-from esrgan import utils
 from esrgan.model.module.blocks import container, Conv2d, LeakyReLU
 
 

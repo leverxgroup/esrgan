@@ -1,9 +1,7 @@
-import copy
 from typing import Dict
 
 from catalyst import runners
 from catalyst.core.runner import IRunner
-from catalyst.registry import REGISTRY
 import torch
 
 __all__ = ["GANRunner", "GANConfigRunner"]
@@ -28,7 +26,7 @@ class GANRunner(IRunner):
         generator_key: str = "generator",
         discriminator_key: str = "discriminator",
     ) -> None:
-        """Catalyst-specific helper method for `__init__`.
+        """Constructor method for the ``GANRunner`` class.
 
         Args:
             input_key: Key in batch dict mapping for model input.
@@ -88,7 +86,6 @@ class GANRunner(IRunner):
         """
         # `handle_batch` method is `@abstractmethod` so it must be defined
         # even if it overwrites in `on_stage_start`
-        # self.batch = {**batch}
         self._handle_batch_supervised(batch=batch)
 
     def _handle_batch_supervised(self, batch: Dict[str, torch.Tensor]) -> None:
@@ -160,6 +157,12 @@ class GANRunner(IRunner):
 
 
 class GANConfigRunner(runners.ConfigRunner, GANRunner):
+    """ConfigRunner for ESRGAN, please check `catalyst docs`__ for more info.
+
+    __ https://catalyst-team.github.io/catalyst/api/core.html#experiment
+
+    """
+
     def __init__(
         self,
         config: dict,
@@ -173,6 +176,30 @@ class GANConfigRunner(runners.ConfigRunner, GANRunner):
         generator_key: str = "generator",
         discriminator_key: str = "discriminator",
     ):
+        """Constructor method for the ``GANConfigRunner`` class.
+
+        Args:
+            config: Dictionary with parameters e.g., model or engine to use.
+            input_key: Key in batch dict mapping for model input.
+            target_key: Key in batch dict mapping for target.
+            generator_output_key: Key in output dict model output
+                of the generator will be stored under.
+            discriminator_real_output_gkey: Key to store predictions of
+                discriminator for real inputs, contain gradients for generator.
+            discriminator_fake_output_gkey: Key to store predictions of
+                discriminator for predictions of generator,
+                contain gradients for generator.
+            discriminator_real_output_dkey: Key to store predictions of
+                discriminator for real inputs,
+                contain gradients for discriminator only.
+            discriminator_fake_output_dkey: Key to store predictions of
+                discriminator for items produced by generator,
+                contain gradients for discriminator only.
+            generator_key: Key in model dict mapping for generator model.
+            discriminator_key: Key in model dict mapping for discriminator
+                model (will be used in gan stages only).
+
+        """
         GANRunner.__init__(
             self,
             input_key=input_key,
