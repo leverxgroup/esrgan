@@ -11,11 +11,22 @@ For example: ::
 
 DIV2K
 ^^^^^
+
 .. autoclass:: esrgan.dataset.div2k.DIV2KDataset
     :members:
 
+
 Folder of Images
 ^^^^^^^^^^^^^^^^
+
 .. autoclass:: esrgan.dataset.image_folder.ImageFolderDataset
+    :members:
+    :undoc-members:
+
+
+Misc
+^^^^
+
+.. automodule:: esrgan.dataset.misc
     :members:
     :undoc-members:
