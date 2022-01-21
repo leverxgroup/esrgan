@@ -64,8 +64,6 @@ class GANRunner(IRunner):
         self.discriminator_real_output_dkey = discriminator_real_output_dkey
         self.discriminator_fake_output_dkey = discriminator_fake_output_dkey
 
-        self.epoch_counter = -1  # TODO: remove
-
     def predict_batch(self, batch: Dict[str, torch.Tensor]) -> torch.Tensor:
         """Generate predictions based on input batch (generator inference).
 
@@ -105,17 +103,6 @@ class GANRunner(IRunner):
 
         self.batch = {**batch, self.generator_output_key: output}
 
-        # TODO: remove {
-        if self.global_epoch_step > self.epoch_counter:
-            self.epoch_counter = self.global_epoch_step
-
-            self.log_image(tag=f'real image 1th', image=tensor_to_ndimage(batch['real_image'][0, ...].detach().cpu()))
-            self.log_image(tag=f'real image 4th', image=tensor_to_ndimage(batch['real_image'][3, ...].detach().cpu()))
-
-            self.log_image(tag=f'fake image 1th', image=tensor_to_ndimage(output[0, ...].detach().cpu()))
-            self.log_image(tag=f'fake image 4th', image=tensor_to_ndimage(output[3, ...].detach().cpu()))
-        # TODO: } remove
-
     def _handle_batch_gan(self, batch: Dict[str, torch.Tensor]) -> None:
         """Process train/valid batch, GAN mode.
 
@@ -149,17 +136,6 @@ class GANRunner(IRunner):
             self.discriminator_real_output_dkey: real_logits_d,
             self.discriminator_fake_output_dkey: fake_logits_d,
         }
-
-        # TODO: remove {
-        if self.global_epoch_step > self.epoch_counter:
-            self.epoch_counter = self.global_epoch_step
-
-            self.log_image(tag=f'real image 1th', image=tensor_to_ndimage(batch['real_image'][0, ...].detach().cpu()))
-            self.log_image(tag=f'real image 4th', image=tensor_to_ndimage(batch['real_image'][3, ...].detach().cpu()))
-
-            self.log_image(tag=f'fake image 1th', image=tensor_to_ndimage(fake_image[0, ...].detach().cpu()))
-            self.log_image(tag=f'fake image 4th', image=tensor_to_ndimage(fake_image[3, ...].detach().cpu()))
-        # TODO: } remove
 
     def on_stage_start(self, runner: IRunner) -> None:
         """Prepare `_handle_batch` method for current stage.
@@ -211,71 +187,3 @@ class GANConfigRunner(runners.ConfigRunner, GANRunner):
         )
 
         runners.ConfigRunner.__init__(self, config=config)
-
-    @staticmethod
-    def _get_model_from_params(**params):
-        params = copy.deepcopy(params)
-        is_key_value = params.pop("_key_value", False)
-
-        if is_key_value:
-            model = {
-                model_key: runners.ConfigRunner._get_model_from_params(
-                    **model_params
-                )
-                for model_key, model_params in params.items()
-            }
-            # TODO: hotfix for DDP
-            # model = nn.ModuleDict(model)
-        else:
-            model = REGISTRY.get_from_params(**params)
-        return model
-
-# TODO: remove {
-import numpy as np
-from typing import Tuple
-def tensor_to_ndimage(
-    images: torch.Tensor,
-    denormalize: bool = True,
-    mean: Tuple[float, float, float] = (0, 0, 0),
-    std: Tuple[float, float, float] = (1, 1, 1),
-    move_channels_dim: bool = True,
-    dtype=np.float32,
-) -> np.ndarray:
-    """
-    Convert float image(s) with standard normalization to
-    np.ndarray with [0..1] when dtype is np.float32 and [0..255]
-    when dtype is `np.uint8`.
-    Args:
-        images: [B]xCxHxW float tensor
-        denormalize: if True, multiply image(s) by std and add mean
-        mean (Tuple[float, float, float]): per channel mean to add
-        std (Tuple[float, float, float]): per channel std to multiply
-        move_channels_dim: if True, convert tensor to [B]xHxWxC format
-        dtype: result ndarray dtype. Only float32 and uint8 are supported
-    Returns:
-        [B]xHxWxC np.ndarray of dtype
-    """
-    if denormalize:
-        has_batch_dim = len(images.shape) == 4
-
-        mean = images.new_tensor(mean).view(
-            *((1,) if has_batch_dim else ()), len(mean), 1, 1
-        )
-        std = images.new_tensor(std).view(
-            *((1,) if has_batch_dim else ()), len(std), 1, 1
-        )
-
-        images = images * std + mean
-
-    images = images.float().clamp(0, 1).numpy()
-
-    if move_channels_dim:
-        images = np.moveaxis(images, -3, -1)
-
-    if dtype == np.uint8:
-        images = (images * 255).round().astype(dtype)
-    else:
-        assert dtype == np.float32, "Only float32 and uint8 are supported"
-
-    return images
-# TODO: } remove

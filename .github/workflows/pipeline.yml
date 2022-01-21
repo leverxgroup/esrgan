@@ -27,7 +27,7 @@ jobs:
       - name: Install poetry
         run: |
           pip install -U pip
-          curl -sSL "https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py" | python -
+          curl -sSL "https://install.python-poetry.org" | python -
           echo "${HOME}/.poetry/bin" >> $GITHUB_PATH
 
       - name: Set up cache
@@ -55,10 +55,8 @@ jobs:
           wget http://data.vision.ee.ethz.ch/cvl/DIV2K/DIV2K_valid_HR.zip -P ./data/
           wget https://data.vision.ee.ethz.ch/cvl/DIV2K/DIV2K_valid_LR_bicubic_X4.zip -P ./data/
 
-      - name: Check pipeline - phase 1 (supervised)
+      - name: Check pipeline
         run: |
-          poetry run catalyst-dl run -C experiment/config_supervised.yml --check --stages/data_params/batch_size=2:int
-
-      - name: Check pipeline - phase 2(GAN)
-        run: |
-          poetry run catalyst-dl run -C experiment/config_gan.yml --check --stages/data_params/batch_size=2:int
+          poetry run catalyst-dl run -C config.yml --check \
+            --stages/stage1_supervised/loaders/train/batch_size=2:int \
+            --stages/stage2_gan/loaders/train/batch_size=2:int
