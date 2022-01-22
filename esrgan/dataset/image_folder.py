@@ -3,7 +3,7 @@ from typing import Callable, Dict, Optional
 
 from catalyst import data, utils
 
-from esrgan.dataset import misc
+from esrgan.dataset import aug
 
 __all__ = ["ImageFolderDataset"]
 
@@ -43,7 +43,7 @@ class ImageFolderDataset(data.ListDataset):
             data.ImageReader(input_key="image", output_key=image_key),
             data.LambdaReader(input_key="image", output_key=image_name_key),
         ])
-        transform = misc.Augmentor(transform)
+        transform = aug.Augmentor(transform)
 
         super().__init__(
             list_data=list_data, open_fn=open_fn, dict_transform=transform

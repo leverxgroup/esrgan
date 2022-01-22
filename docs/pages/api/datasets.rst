@@ -24,9 +24,9 @@ Folder of Images
     :undoc-members:
 
 
-Misc
-^^^^
+Augmentation
+^^^^^^^^^^^^
 
-.. automodule:: esrgan.dataset.misc
+.. automodule:: esrgan.dataset.aug
     :members:
     :undoc-members:

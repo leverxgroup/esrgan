@@ -9,7 +9,7 @@ from catalyst.contrib.datasets import misc
 import numpy as np
 from torch.utils.data import Dataset
 
-from esrgan.dataset import misc
+from esrgan.dataset import aug
 
 __all__ = ["DIV2KDataset"]
 
@@ -140,7 +140,7 @@ class DIV2KDataset(Dataset):
         self.target_patch_size = patch_size
         self.input_patch_size = (height // self.scale, width // self.scale)
 
-        self.transform = misc.Augmentor(transform)
+        self.transform = aug.Augmentor(transform)
 
     def __getitem__(self, index: int) -> dict:
         """Gets element of the dataset.
