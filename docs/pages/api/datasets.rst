@@ -9,24 +9,24 @@ For example: ::
     div2k_data = esrgan.dataset.DIV2KDataset('path/to/div2k_root/')
     data_loader = torch.utils.data.DataLoader(div2k_data, batch_size=4, shuffle=True)
 
+
 DIV2K
 ^^^^^
 
-.. autoclass:: esrgan.dataset.div2k.DIV2KDataset
+.. autoclass:: esrgan.dataset.DIV2KDataset
+    :members:
+
+
+Flickr2K
+^^^^^^^^
+
+.. autoclass:: esrgan.dataset.Flickr2K
     :members:
 
 
 Folder of Images
 ^^^^^^^^^^^^^^^^
 
-.. autoclass:: esrgan.dataset.image_folder.ImageFolderDataset
-    :members:
-    :undoc-members:
-
-
-Augmentation
-^^^^^^^^^^^^
-
-.. automodule:: esrgan.dataset.aug
+.. autoclass:: esrgan.dataset.ImageFolderDataset
     :members:
     :undoc-members:

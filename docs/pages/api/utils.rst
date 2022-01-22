@@ -4,6 +4,14 @@ Utilities
 Set of utilities that can make life a little bit easier.
 
 
+Augmentation
+^^^^^^^^^^^^
+
+.. automodule:: esrgan.utils.aug
+    :members:
+    :undoc-members:
+
+
 Model init
 ^^^^^^^^^^
 
