@@ -82,43 +82,27 @@ Results
 
 Some examples of work of ESRGAN model trained on `DIV2K <https://data.vision.ee.ethz.ch/cvl/DIV2K>`__ dataset:
 
-.. |squirrel_lr| image:: ./_static/sq_crop_lr.png
-   :width: 128px
-   :height: 128px
-.. |squirrel_sr| image:: ./_static/sq_crop_sr_x4.png
-   :width: 128px
-   :height: 128px
-.. |squirrel_hr| image:: ./_static/sq_crop_hr.png
-   :width: 128px
-   :height: 128px
+.. table::
+   :widths: 33 33 33
 
-.. |wolf_lr| image:: ./_static/wf_crop_lr.png
-   :width: 128px
-   :height: 128px
-.. |wolf_sr| image:: ./_static/wf_crop_sr_x4.png
-   :width: 128px
-   :height: 128px
-.. |wolf__hr| image:: ./_static/wf_crop_hr.png
-   :width: 128px
-   :height: 128px
-
-.. |fish_lr| image:: ./_static/fish_crop_lr.png
-   :width: 128px
-   :height: 128px
-.. |fish_sr| image:: ./_static/fish_crop_sr_x4.png
-   :width: 128px
-   :height: 128px
-.. |fish_hr| image:: ./_static/fish_crop_hr.png
-   :width: 128px
-   :height: 128px
-
-=====================  ===============  ======================
- LR (low resolution)    ESRGAN (ours)    HR (high resolution)
-=====================  ===============  ======================
-    |squirrel_lr|       |squirrel_sr|       |squirrel_hr|
-      |wolf_lr|           |wolf_sr|           |wolf__hr|
-      |fish_lr|           |fish_sr|           |fish_hr|
-=====================  ===============  ======================
+   +---------------------------------------+------------------------------------------+---------------------------------------+
+   | .. centered:: LR (low resolution)     | .. centered:: ESRGAN (ours)              | .. centered:: HR (high resolution)    |
+   +=======================================+==========================================+=======================================+
+   | .. image:: ./_static/sq_crop_lr.png   | .. image:: ./_static/sq_crop_sr_x4.png   | .. image:: ./_static/sq_crop_hr.png   |
+   |    :width: 128px                      |    :width: 128px                         |    :width: 128px                      |
+   |    :height: 128px                     |    :height: 128px                        |    :height: 128px                     |
+   |    :align: center                     |    :align: center                        |    :align: center                     |
+   +---------------------------------------+------------------------------------------+---------------------------------------+
+   | .. image:: ./_static/wf_crop_lr.png   | .. image:: ./_static/wf_crop_sr_x4.png   | .. image:: ./_static/wf_crop_hr.png   |
+   |    :width: 128px                      |    :width: 128px                         |    :width: 128px                      |
+   |    :height: 128px                     |    :height: 128px                        |    :height: 128px                     |
+   |    :align: center                     |    :align: center                        |    :align: center                     |
+   +---------------------------------------+------------------------------------------+---------------------------------------+
+   | .. image:: ./_static/fish_crop_lr.png | .. image:: ./_static/fish_crop_sr_x4.png | .. image:: ./_static/fish_crop_hr.png |
+   |    :width: 128px                      |    :width: 128px                         |    :width: 128px                      |
+   |    :height: 128px                     |    :height: 128px                        |    :height: 128px                     |
+   |    :align: center                     |    :align: center                        |    :align: center                     |
+   +---------------------------------------+------------------------------------------+---------------------------------------+
 
 
 GitHub
