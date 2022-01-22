@@ -172,7 +172,7 @@ class DIV2KDataset(Dataset):
         """Get length of the dataset.
 
         Returns:
-            int: Length of the dataset.
+            Length of the dataset.
 
         """
         return len(self.data)

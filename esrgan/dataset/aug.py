@@ -19,21 +19,27 @@ class Augmentor:
         """
         self.transform = transform if transform is not None else self.indentity
 
-    def __call__(self, dict_: Dict) -> Dict:
-        """Applies ``transform`` to the ``dict_``.
+    def __call__(self, d: Dict) -> Dict:
+        """Applies ``transform`` to the dictionary ``d``.
 
         Args:
-            dict_: Dictionary to transform.
+            d: Dictionary to transform.
+
+        Returns:
+            Output of the ``transform`` function.
 
         """
-        return self.transform(**dict_)
+        return self.transform(**d)
 
     @staticmethod
-    def indentity(dict_: Dict) -> Dict:
+    def indentity(d: Dict) -> Dict:
         """A placeholder identity operator that is argument-insensitive.
 
         Args:
-            dict_: Dictionary with the data that describes sample.
+            d: Dictionary with the data that describes sample.
+
+        Returns:
+            Same dictionary ``d``.
 
         """
-        return dict_
+        return d
