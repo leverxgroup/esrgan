@@ -4,6 +4,9 @@ from typing import Callable, Tuple, Union
 from torch import nn
 from torch.nn.utils.spectral_norm import SpectralNorm
 
+__all__ = ["Conv2d", "Conv2dSN", "LeakyReLU", "LinearSN"]
+
+
 Conv2d: Callable[..., nn.Module] = functools.partial(
     nn.Conv2d, kernel_size=(3, 3), padding=1
 )
@@ -137,6 +140,3 @@ class LinearSN(nn.Linear):
             dim=0,
             eps=1e-12
         )
-
-
-__all__ = ["Conv2d", "Conv2dSN", "LeakyReLU", "LinearSN"]

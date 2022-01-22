@@ -26,6 +26,3 @@ Misc
 .. automodule:: esrgan.utils.misc
     :members:
     :undoc-members:
-.. automodule:: esrgan.utils.types
-    :members:
-    :undoc-members:

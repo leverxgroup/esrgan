@@ -2,6 +2,8 @@ import torch
 from torch.nn import functional as F
 from torch.nn.modules.loss import _Loss
 
+__all__ = ["AdversarialLoss", "RelativisticAdversarialLoss"]
+
 
 class AdversarialLoss(_Loss):
     """GAN Loss function.
@@ -85,7 +87,7 @@ class RelativisticAdversarialLoss(_Loss):
             ``'generator'``: maximize probability that fake data more realistic
             than real (it is useful when training generator),
             ``'discriminator'``: maximize probability that real data more
-            realistic than fake (useful when training discriminator.
+            realistic than fake (useful when training discriminator).
 
     Raises:
         NotImplementedError: If `mode` not ``'generator'``
@@ -107,6 +109,7 @@ class RelativisticAdversarialLoss(_Loss):
             raise NotImplementedError()
 
     def forward(
+        # self, outputs: torch.Tensor, targets: torch.Tensor
         self, fake_logits: torch.Tensor, real_logits: torch.Tensor
     ) -> torch.Tensor:
         """Forward propagation method for the relativistic adversarial loss.
@@ -130,6 +133,3 @@ class RelativisticAdversarialLoss(_Loss):
         loss = (loss_fr + loss_rf) / 2
 
         return loss
-
-
-__all__ = ["AdversarialLoss", "RelativisticAdversarialLoss"]

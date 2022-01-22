@@ -1,11 +1,9 @@
-import copy
-from typing import Optional
-
-from catalyst.registry import MODULE
 import torch
 from torch import nn
 
 from esrgan import utils
+
+__all__ = ["EncoderDecoderNet"]
 
 
 class EncoderDecoderNet(nn.Module):
@@ -25,6 +23,9 @@ class EncoderDecoderNet(nn.Module):
         self.encoder = encoder
         self.decoder = decoder
 
+        # TODO:
+        utils.net_init_(self)
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward pass method.
 
@@ -40,37 +41,3 @@ class EncoderDecoderNet(nn.Module):
         x = torch.clamp(x, min=0.0, max=1.0)
 
         return x
-
-    @classmethod
-    def get_from_params(
-        cls,
-        encoder_params: Optional[dict] = None,
-        decoder_params: Optional[dict] = None,
-    ) -> "EncoderDecoderNet":
-        """Create model based on it config.
-
-        Args:
-            encoder_params: Encoder module params.
-            decoder_params: Decoder module parameters.
-
-        Returns:
-            Model.
-
-        """
-        encoder: nn.Module = nn.Identity()
-        if (encoder_params_ := copy.deepcopy(encoder_params)) is not None:
-            encoder_fn = MODULE.get(encoder_params_.pop("module"))
-            encoder = encoder_fn(**encoder_params_)
-
-        decoder: nn.Module = nn.Identity()
-        if (decoder_params_ := copy.deepcopy(decoder_params)) is not None:
-            decoder_fn = MODULE.get(decoder_params_.pop("module"))
-            decoder = decoder_fn(**decoder_params_)
-
-        net = cls(encoder=encoder, decoder=decoder)
-        utils.net_init_(net)
-
-        return net
-
-
-__all__ = ["EncoderDecoderNet"]

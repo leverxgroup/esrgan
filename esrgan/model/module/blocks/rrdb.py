@@ -1,11 +1,11 @@
 import collections
-from typing import Any, List, Tuple
+from typing import Any, Callable, List, Tuple
 
 from torch import nn
 
-from esrgan import utils
 from esrgan.model.module.blocks import container, Conv2d, LeakyReLU
-from esrgan.utils.types import ModuleParams
+
+__all__ = ["ResidualDenseBlock", "ResidualInResidualDenseBlock"]
 
 
 class ResidualDenseBlock(container.ResidualModule):
@@ -16,20 +16,22 @@ class ResidualDenseBlock(container.ResidualModule):
             :math:`(N, C, H, W)`.
         growth_channels: Number of channels in the latent space.
         num_blocks: Number of convolutional blocks to use to form dense block.
-        conv_fn: Convolutional layers parameters.
-        activation_fn: Activation function to use after each conv layer.
+        conv: Class constructor or partial object which when called
+            should return convolutional layer e.g., :py:class:`nn.Conv2d`.
+        activation: Class constructor or partial object which when called
+            should return activation function to use after convolution
+            e.g., :py:class:`nn.LeakyReLU`.
         residual_scaling: Residual connections scaling factor.
 
     """
 
-    @utils.process_fn_params
     def __init__(
         self,
         num_features: int,
         growth_channels: int,
         num_blocks: int = 5,
-        conv_fn: ModuleParams = Conv2d,
-        activation_fn: ModuleParams = LeakyReLU,
+        conv: Callable[..., nn.Module] = Conv2d,
+        activation: Callable[..., nn.Module] = LeakyReLU,
         residual_scaling: float = 0.2,
     ) -> None:
         in_channels = [
@@ -40,8 +42,8 @@ class ResidualDenseBlock(container.ResidualModule):
         blocks: List[nn.Module] = []
         for in_channels_, out_channels_ in zip(in_channels, out_channels):
             block = collections.OrderedDict([
-                ("conv", conv_fn(in_channels_, out_channels_)),
-                ("act", activation_fn()),
+                ("conv", conv(in_channels_, out_channels_)),
+                ("act", activation()),
             ])
             blocks.append(nn.Sequential(block))
 
@@ -92,6 +94,3 @@ class ResidualInResidualDenseBlock(container.ResidualModule):
             module=nn.Sequential(collections.OrderedDict(blocks)),
             scale=residual_scaling
         )
-
-
-__all__ = ["ResidualDenseBlock", "ResidualInResidualDenseBlock"]

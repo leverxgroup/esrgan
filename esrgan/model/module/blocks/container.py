@@ -3,6 +3,8 @@ from typing import Iterable
 import torch
 from torch import nn
 
+__all__ = ["ConcatInputModule", "ResidualModule"]
+
 
 class ConcatInputModule(nn.Module):
     """Module wrapper, passing outputs of all previous layers
@@ -76,6 +78,3 @@ class ResidualModule(nn.Module):
 
         """
         return x + self.scale * self.module(x)
-
-
-__all__ = ["ConcatInputModule", "ResidualModule"]

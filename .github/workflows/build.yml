@@ -24,7 +24,7 @@ jobs:
       - name: Install poetry
         run: |
           pip install -U pip
-          curl -sSL "https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py" | python -
+          curl -sSL "https://install.python-poetry.org" | python -
           echo "${HOME}/.poetry/bin" >> $GITHUB_PATH
 
       - name: Set up cache
@@ -42,7 +42,7 @@ jobs:
         run: |
           poetry run flake8 --show-source --statistics --count -- .
           poetry run isort --check-only -- .
-          poetry run mypy -- .
+          # poetry run mypy -- .
           poetry run doc8 -q -- docs
 
       # - name: Unit tests

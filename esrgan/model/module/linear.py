@@ -5,7 +5,8 @@ from torch import nn
 
 from esrgan import utils
 from esrgan.model.module import blocks
-from esrgan.utils.types import ModuleParams
+
+__all__ = ["LinearHead"]
 
 
 class LinearHead(nn.Module):
@@ -16,37 +17,40 @@ class LinearHead(nn.Module):
         out_channels: Size of each output sample.
         latent_channels: Size of the latent space.
         layer_order: Ordered list of layers applied within each block.
-            For instance, if you don't want to use normalization layer
+            For instance, if you don't want to use activation function
             just exclude it from this list.
-        linear_fn: Linear layer params.
-        activation_fn: Activation function to use.
-        norm_fn: Normalization layer params, e.g. :py:class:`nn.BatchNorm1d`.
-        dropout_fn: Dropout layer params, e.g. :py:class:`nn.Dropout`.
+        linear: Class constructor or partial object which when called
+            should return linear layer e.g., :py:class:`nn.Linear`.
+        activation: Class constructor or partial object which when called
+            should return activation function layer e.g., :py:class:`nn.ReLU`.
+        norm: Class constructor or partial object which when called
+            should return normalization layer e.g., :py:class:`nn.BatchNorm1d`.
+        dropout: Class constructor or partial object which when called
+            should return dropout layer e.g., :py:class:`nn.Dropout`.
 
     """
 
-    @utils.process_fn_params
     def __init__(
         self,
         in_channels: int,
         out_channels: int,
         latent_channels: Optional[Iterable[int]] = None,
         layer_order: Iterable[str] = ("linear", "activation"),
-        linear_fn: ModuleParams = nn.Linear,
-        activation_fn: ModuleParams = blocks.LeakyReLU,
-        norm_fn: Optional[ModuleParams] = None,
-        dropout_fn: Optional[ModuleParams] = None,
+        linear: Callable[..., nn.Module] = nn.Linear,
+        activation: Callable[..., nn.Module] = blocks.LeakyReLU,
+        norm: Optional[Callable[..., nn.Module]] = None,
+        dropout: Optional[Callable[..., nn.Module]] = None,
     ) -> None:
         super().__init__()
 
         name2fn: Dict[str, Callable[..., nn.Module]] = {
-            "activation": activation_fn,
-            "dropout": dropout_fn,
-            "linear": linear_fn,
-            "norm": norm_fn,
+            "activation": activation,
+            "dropout": dropout,
+            "linear": linear,
+            "norm": norm,
         }
 
-        latent_channels = latent_channels if latent_channels else []
+        latent_channels = latent_channels or []
         channels = [in_channels, *latent_channels, out_channels]
         channels_pairs: List[Tuple[int, int]] = list(utils.pairwise(channels))
 
@@ -77,6 +81,3 @@ class LinearHead(nn.Module):
         output = self.net(x)
 
         return output
-
-
-__all__ = ["LinearHead"]

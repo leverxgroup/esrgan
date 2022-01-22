@@ -1,10 +1,12 @@
+from typing import Callable
+
 import torch
 from torch import nn
 from torch.nn import functional as F
 
-from esrgan import utils
 from esrgan.model.module.blocks.misc import Conv2d, LeakyReLU
-from esrgan.utils.types import ModuleParams
+
+__all__ = ["SubPixelConv", "InterpolateConv"]
 
 
 class SubPixelConv(nn.Module):
@@ -19,8 +21,11 @@ class SubPixelConv(nn.Module):
     Args:
         num_features: Number of channels in the input tensor.
         scale_factor: Factor to increase spatial resolution by.
-        conv_fn: Convolution layer params.
-        activation_fn: Activation function to use after sub-pixel convolution.
+        conv: Class constructor or partial object which when called
+            should return convolutional layer e.g., :py:class:`nn.Conv2d`.
+        activation: Class constructor or partial object which when called
+            should return activation function to use after
+            sub-pixel convolution e.g., :py:class:`nn.PReLU`.
 
     .. _`Real-Time Single Image and Video Super-Resolution Using an Efficient
         Sub-Pixel Convolutional Neural Network`:
@@ -28,20 +33,19 @@ class SubPixelConv(nn.Module):
 
     """
 
-    @utils.process_fn_params
     def __init__(
         self,
         num_features: int,
         scale_factor: int = 2,
-        conv_fn: ModuleParams = Conv2d,
-        activation_fn: ModuleParams = nn.PReLU,
+        conv: Callable[..., nn.Module] = Conv2d,
+        activation: Callable[..., nn.Module] = nn.PReLU,
     ):
         super().__init__()
 
         self.block = nn.Sequential(
-            conv_fn(num_features, num_features * 4),
+            conv(num_features, num_features * 4),
             nn.PixelShuffle(upscale_factor=scale_factor),
-            activation_fn(),
+            activation(),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -65,25 +69,27 @@ class InterpolateConv(nn.Module):
     Args:
         num_features: Number of channels in the input tensor.
         scale_factor: Factor to increase spatial resolution by.
-        conv_fn: Convolutional layer params.
-        activation_fn: Activation function to use after convolution.
+        conv: Class constructor or partial object which when called
+            should return convolutional layer e.g., :py:class:`nn.Conv2d`.
+        activation: Class constructor or partial object which when called
+            should return activation function to use after convolution
+            e.g., :py:class:`nn.PReLU`.
 
     """
 
-    @utils.process_fn_params
     def __init__(
         self,
         num_features: int,
         scale_factor: int = 2,
-        conv_fn: ModuleParams = Conv2d,
-        activation_fn: ModuleParams = LeakyReLU,
+        conv: Callable[..., nn.Module] = Conv2d,
+        activation: Callable[..., nn.Module] = LeakyReLU,
     ) -> None:
         super().__init__()
 
         self.scale_factor = scale_factor
         self.block = nn.Sequential(
-            conv_fn(num_features, num_features),
-            activation_fn(),
+            conv(num_features, num_features),
+            activation(),
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -100,6 +106,3 @@ class InterpolateConv(nn.Module):
         output = self.block(x)
 
         return output
-
-
-__all__ = ["SubPixelConv", "InterpolateConv"]

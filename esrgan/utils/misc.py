@@ -1,6 +1,8 @@
 import itertools
 from typing import Any, Iterable
 
+__all__ = ["pairwise", "is_power_of_two"]
+
 
 def pairwise(iterable: Iterable[Any]) -> Iterable[Any]:
     """Iterate sequences by pairs.
@@ -13,7 +15,7 @@ def pairwise(iterable: Iterable[Any]) -> Iterable[Any]:
 
     Examples:
         >>> for i in pairwise([1, 2, 5, -3]):
-        >>>     print(i)
+        ...     print(i)
         (1, 2)
         (2, 5)
         (5, -3)
@@ -42,6 +44,3 @@ def is_power_of_two(number: int) -> bool:
     """
     result = number == 0 or (number & (number - 1) != 0)
     return result
-
-
-__all__ = ["pairwise", "is_power_of_two"]

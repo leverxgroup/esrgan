@@ -6,7 +6,8 @@ from torch import nn
 
 from esrgan import utils
 from esrgan.model.module import blocks
-from esrgan.utils.types import ModuleParams
+
+__all__ = ["StridedConvEncoder"]
 
 
 class StridedConvEncoder(nn.Module):
@@ -17,31 +18,34 @@ class StridedConvEncoder(nn.Module):
         layer_order: Ordered list of layers applied within each block.
             For instance, if you don't want to use normalization layer
             just exclude it from this list.
-        conv_fn: Convolutional layer params.
-        activation_fn: Activation function to use.
-        norm_fn: Normalization layer params, e.g. :py:class:`.nn.BatchNorm2d`.
-        residual_fn: Block wrapper function, e.g.
+        conv: Class constructor or partial object which when called
+            should return convolutional layer e.g., :py:class:`nn.Conv2d`.
+        norm: Class constructor or partial object which when called should
+            return normalization layer e.g., :py:class:`.nn.BatchNorm2d`.
+        activation: Class constructor or partial object which when called
+            should return activation function to use e.g., :py:class:`nn.ReLU`.
+        residual: Class constructor or partial object which when called
+            should return block wrapper module e.g.,
             :py:class:`~.blocks.container.ResidualModule` can be used
             to add residual connections between blocks.
 
     """
 
-    @utils.process_fn_params
     def __init__(
         self,
         layers: Iterable[int] = (3, 64, 128, 128, 256, 256, 512, 512),
         layer_order: Iterable[str] = ("conv", "norm", "activation"),
-        conv_fn: ModuleParams = blocks.Conv2d,
-        activation_fn: ModuleParams = blocks.LeakyReLU,
-        norm_fn: Optional[ModuleParams] = nn.BatchNorm2d,
-        residual_fn: Optional[ModuleParams] = None,
+        conv: Callable[..., nn.Module] = blocks.Conv2d,
+        norm: Optional[Callable[..., nn.Module]] = nn.BatchNorm2d,
+        activation: Callable[..., nn.Module] = blocks.LeakyReLU,
+        residual: Optional[Callable[..., nn.Module]] = None,
     ):
         super().__init__()
 
         name2fn: Dict[str, Callable[..., nn.Module]] = {
-            "activation": activation_fn,
-            "conv": conv_fn,
-            "norm": norm_fn,
+            "activation": activation,
+            "conv": conv,
+            "norm": norm,
         }
 
         self._layers = list(layers)
@@ -72,8 +76,8 @@ class StridedConvEncoder(nn.Module):
             block = nn.Sequential(collections.OrderedDict(block_list))
 
             # add residual connection, like in resnet blocks
-            if residual_fn is not None and in_ch == out_ch:
-                block = residual_fn(block)
+            if residual is not None and in_ch == out_ch:
+                block = residual(block)
 
             net.append((f"block_{i}", block))
 
@@ -112,6 +116,3 @@ class StridedConvEncoder(nn.Module):
 
         """
         return self._layers[-1]
-
-
-__all__ = ["StridedConvEncoder"]

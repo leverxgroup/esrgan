@@ -39,14 +39,10 @@ poetry install
 ```
 
 ### Run an experiment
+```bash
+catalyst-dl run -C esrgan/config.yml --benchmark
 ```
-# step 1 - supervised training of the model
-catalyst-dl run -C esrgan/experiment/config_supervised.yml --benchmark
-
-# step 2 - use weights from step 1 to train model using GAN approach
-catalyst-dl run -C esrgan/experiment/config_gan.yml --benchmark
-```
-where `esrgan/experiment/config.yml` is a path to the [config](experiment/config.yml) file.
+where `esrgan/config.yml` is a path to the [config](config.yml) file.
 
 ## Results
 Some examples of work of ESRGAN model trained on [DIV2K](https://data.vision.ee.ethz.ch/cvl/DIV2K) dataset:

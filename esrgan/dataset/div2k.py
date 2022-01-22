@@ -1,13 +1,17 @@
 import glob
 from pathlib import Path
 import random
-from typing import Callable, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Callable, Iterable, List, Optional, Tuple
 
-from albumentations.augmentations import functional as F
+from albumentations.augmentations.crops import functional as F
 from catalyst import data, utils
-from catalyst.contrib.datasets.functional import download_and_extract_archive
+from catalyst.contrib.datasets import misc
 import numpy as np
 from torch.utils.data import Dataset
+
+from esrgan.dataset import aug
+
+__all__ = ["DIV2KDataset"]
 
 
 def paired_random_crop(
@@ -86,7 +90,7 @@ class DIV2KDataset(Dataset):
         train: bool = True,
         target_type: str = "bicubic_X4",
         patch_size: Tuple[int, int] = (96, 96),
-        transform: Optional[Callable[[Dict], Dict]] = None,
+        transform: Optional[Callable[[Any], dict]] = None,
         low_resolution_image_key: str = "lr_image",
         high_resolution_image_key: str = "hr_image",
         download: bool = False,
@@ -96,7 +100,7 @@ class DIV2KDataset(Dataset):
         filename_lr = f"DIV2K_{mode}_LR_{target_type}.zip"
         if download:
             # download HR (target) images
-            download_and_extract_archive(
+            misc.download_and_extract_archive(
                 f"{self.url}{filename_hr}",
                 download_root=root,
                 filename=filename_hr,
@@ -104,7 +108,7 @@ class DIV2KDataset(Dataset):
             )
 
             # download lr (input) images
-            download_and_extract_archive(
+            misc.download_and_extract_archive(
                 f"{self.url}{filename_lr}",
                 download_root=root,
                 filename=filename_lr,
@@ -136,9 +140,9 @@ class DIV2KDataset(Dataset):
         self.target_patch_size = patch_size
         self.input_patch_size = (height // self.scale, width // self.scale)
 
-        self.transform = transform if transform is not None else lambda x: x
+        self.transform = aug.Augmentor(transform)
 
-    def __getitem__(self, index: int) -> Dict:
+    def __getitem__(self, index: int) -> dict:
         """Gets element of the dataset.
 
         Args:
@@ -168,7 +172,7 @@ class DIV2KDataset(Dataset):
         """Get length of the dataset.
 
         Returns:
-            int: Length of the dataset.
+            Length of the dataset.
 
         """
         return len(self.data)
@@ -183,6 +187,3 @@ class DIV2KDataset(Dataset):
         images = sorted(filter(utils.has_image_extension, files))
 
         return images
-
-
-__all__ = ["DIV2KDataset"]
