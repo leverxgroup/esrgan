@@ -72,7 +72,7 @@ Run an experiment
    catalyst-dl run -C esrgan/config.yml --benchmark
 
 
-where `esrgan/config.yml` is a path to the `config file <../config.yml>`__.
+where `esrgan/config.yml` is a path to the `config file <https://github.com/leverxgroup/esrgan/blob/master/config.yml>`__.
 
 
 Results
@@ -113,7 +113,7 @@ Bugfixes and contributions are very much appreciated!
 License
 =======
 
-`esrgan` is released under a CC-BY-NC-ND-4.0 license. See `LICENSE <../LICENSE>`__ for additional details about it.
+`esrgan` is released under a CC-BY-NC-ND-4.0 license. See `LICENSE <https://github.com/leverxgroup/esrgan/blob/master/LICENSE>`__ for additional details about it.
 
 
 .. toctree::
