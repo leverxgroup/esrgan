@@ -65,16 +65,14 @@ Run an experiment
 
 ::
 
-   # step 0 - download dir with ESRGAN experiment
+   # step 1 - download dir with ESRGAN experiment
    git clone --depth 1 https://github.com/leverxgroup/esrgan.git
 
-   # step 1 - supervised training of the model
-   catalyst-dl run -C esrgan/experiment/config_supervised.yml --benchmark
+   # step 2 - training of the model
+   catalyst-dl run -C esrgan/config.yml --benchmark
 
-   # step 2 - use weights from step 1 to train model using GAN approach
-   catalyst-dl run -C esrgan/experiment/config_gan.yml --benchmark
 
-where `esrgan/experiment/config.yml` is a path to the `config file <../experiment/config.yml>`__.
+where `esrgan/config.yml` is a path to the `config file <../config.yml>`__.
 
 
 Results
