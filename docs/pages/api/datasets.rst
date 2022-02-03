@@ -20,7 +20,7 @@ DIV2K
 Flickr2K
 ^^^^^^^^
 
-.. autoclass:: esrgan.dataset.Flickr2K
+.. autoclass:: esrgan.dataset.Flickr2KDataset
     :members:
 
 

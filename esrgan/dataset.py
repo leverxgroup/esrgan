@@ -11,11 +11,11 @@ from torch.utils.data import Dataset
 
 from esrgan import utils
 
-__all__ = ["DIV2KDataset", "Flickr2K", "ImageFolderDataset"]
+__all__ = ["DIV2KDataset", "Flickr2KDataset", "ImageFolderDataset"]
 
 
 def has_image_extension(uri: Union[str, Path]) -> bool:
-    """Check that file has image extension.
+    """Checks that file has image extension.
 
     Args:
         uri: The resource to load the file from.
@@ -26,6 +26,32 @@ def has_image_extension(uri: Union[str, Path]) -> bool:
     """
     ext = Path(uri).suffix
     return ext.lower() in {".bmp", ".png", ".jpeg", ".jpg", ".tif", ".tiff"}
+
+
+def images_in_dir(*args: Union[str, Path]) -> List[str]:
+    """Searches for all images in the directory.
+
+    Args:
+        *args: Path to the folder with images.
+            Each element of path segments can be either a string
+            representing a path segment, an object implementing
+            the :py:class:`os.PathLike` interface which returns a string,
+            or another path object.
+
+    Returns:
+        List of images in the folder or its subfolders.
+
+    """
+    # fix path to dir for the `NTIRE 2017` datasets
+    path = Path(*args)
+    if not path.exists():
+        idx = path.name.rfind("_")
+        path = path.parent / path.name[:idx] / path.name[idx + 1:]
+
+    files = glob.iglob(f"{path}/**/*", recursive=True)
+    images = sorted(filter(has_image_extension, files))
+
+    return images
 
 
 def paired_random_crop(
@@ -51,7 +77,88 @@ def paired_random_crop(
     return crops
 
 
-class DIV2KDataset(Dataset):
+class _PairedImagesDataset(Dataset):
+    """Base Dataset for the Image Super-Resolution task.
+
+    Args:
+        train: If True, creates dataset from training set,
+            otherwise creates from validation set.
+        target_type: Type of target to use, ``'bicubic_X2'``, ``'unknown_X4'``,
+            ``'X8'``, ``'mild'``, ...
+        patch_size: If ``train == True``, define sizes of patches to produce,
+            return full image otherwise. Tuple of height and width.
+        transform: A function / transform that takes in dictionary (with low
+            and high resolution images) and returns a transformed version.
+        low_resolution_image_key: Key to use to store images of low resolution.
+        high_resolution_image_key: Key to use to store high resolution images.
+
+    """
+
+    def __init__(
+        self,
+        train: bool = True,
+        target_type: str = "bicubic_X4",
+        patch_size: Tuple[int, int] = (96, 96),
+        transform: Optional[Callable[[Any], Dict]] = None,
+        low_resolution_image_key: str = "lr_image",
+        high_resolution_image_key: str = "hr_image",
+    ) -> None:
+        self.train = train
+
+        self.lr_key = low_resolution_image_key
+        self.hr_key = high_resolution_image_key
+
+        self.data: List[Dict[str, str]] = []
+        self.open_fn = data.ReaderCompose([
+            data.ImageReader(input_key="lr_image", output_key=self.lr_key),
+            data.ImageReader(input_key="hr_image", output_key=self.hr_key),
+        ])
+
+        _, downscaling = target_type.split("_")
+        self.scale = int(downscaling) if downscaling.isdigit() else 4
+        height, width = patch_size
+        self.target_patch_size = patch_size
+        self.input_patch_size = (height // self.scale, width // self.scale)
+
+        self.transform = utils.Augmentor(transform)
+
+    def __getitem__(self, index: int) -> Dict:
+        """Gets element of the dataset.
+
+        Args:
+            index: Index of the element in the dataset.
+
+        Returns:
+            Dict of low and high resolution images.
+
+        """
+        record = self.data[index]
+
+        sample_dict = self.open_fn(record)
+
+        if self.train:
+            # use random crops during training
+            lr_crop, hr_crop = paired_random_crop(
+                (sample_dict[self.lr_key], sample_dict[self.hr_key]),
+                (self.input_patch_size, self.target_patch_size),
+            )
+            sample_dict.update({self.lr_key: lr_crop, self.hr_key: hr_crop})
+
+        sample_dict = self.transform(sample_dict)
+
+        return sample_dict
+
+    def __len__(self) -> int:
+        """Get length of the dataset.
+
+        Returns:
+            Length of the dataset.
+
+        """
+        return len(self.data)
+
+
+class DIV2KDataset(_PairedImagesDataset):
     """`DIV2K <https://data.vision.ee.ethz.ch/cvl/DIV2K>`_ Dataset.
 
     Args:
@@ -109,6 +216,15 @@ class DIV2KDataset(Dataset):
         high_resolution_image_key: str = "hr_image",
         download: bool = False,
     ) -> None:
+        super().__init__(
+            train=train,
+            target_type=target_type,
+            patch_size=patch_size,
+            transform=transform,
+            low_resolution_image_key=low_resolution_image_key,
+            high_resolution_image_key=high_resolution_image_key,
+        )
+
         mode = "train" if train else "valid"
         filename_hr = f"DIV2K_{mode}_HR.zip"
         filename_lr = f"DIV2K_{mode}_LR_{target_type}.zip"
@@ -129,16 +245,9 @@ class DIV2KDataset(Dataset):
                 md5=self.resources[filename_lr],
             )
 
-        self.train = train
-
-        self.lr_key = low_resolution_image_key
-        self.hr_key = high_resolution_image_key
-
-        _, downscaling = target_type.split("_")
-
         # 'index' files
-        lr_images = self._images_in_dir(root, Path(filename_lr).stem)
-        hr_images = self._images_in_dir(root, Path(filename_hr).stem)
+        lr_images = images_in_dir(root, Path(filename_lr).stem)
+        hr_images = images_in_dir(root, Path(filename_hr).stem)
         assert len(lr_images) == len(hr_images)
 
         self.data = [
@@ -146,67 +255,8 @@ class DIV2KDataset(Dataset):
             for lr_image, hr_image in zip(lr_images, hr_images)
         ]
 
-        self.open_fn = data.ReaderCompose([
-            data.ImageReader(input_key="lr_image", output_key=self.lr_key),
-            data.ImageReader(input_key="hr_image", output_key=self.hr_key),
-        ])
 
-        self.scale = int(downscaling) if downscaling.isdigit() else 4
-        height, width = patch_size
-        self.target_patch_size = patch_size
-        self.input_patch_size = (height // self.scale, width // self.scale)
-
-        self.transform = utils.Augmentor(transform)
-
-    def __getitem__(self, index: int) -> Dict:
-        """Gets element of the dataset.
-
-        Args:
-            index: Index of the element in the dataset.
-
-        Returns:
-            Dict of low and high resolution images.
-
-        """
-        record = self.data[index]
-
-        sample_dict = self.open_fn(record)
-
-        if self.train:
-            # use random crops during training
-            lr_crop, hr_crop = paired_random_crop(
-                (sample_dict[self.lr_key], sample_dict[self.hr_key]),
-                (self.input_patch_size, self.target_patch_size),
-            )
-            sample_dict.update({self.lr_key: lr_crop, self.hr_key: hr_crop})
-
-        sample_dict = self.transform(sample_dict)
-
-        return sample_dict
-
-    def __len__(self) -> int:
-        """Get length of the dataset.
-
-        Returns:
-            Length of the dataset.
-
-        """
-        return len(self.data)
-
-    def _images_in_dir(self, *path: Union[str, Path]) -> List[str]:
-        # fix path to dir for `NTIRE 2017` datasets
-        path = Path(*path)
-        if not path.exists():
-            idx = path.name.rfind("_")
-            path = path.parent / path.name[:idx] / path.name[idx + 1:]
-
-        files = glob.iglob(f"{path}/**/*", recursive=True)
-        images = sorted(filter(has_image_extension, files))
-
-        return images
-
-
-class Flickr2K(DIV2KDataset):
+class Flickr2KDataset(_PairedImagesDataset):
     """`Flickr2K <https://github.com/LimBee/NTIRE2017>`_ Dataset.
 
     Args:
@@ -243,6 +293,15 @@ class Flickr2K(DIV2KDataset):
         high_resolution_image_key: str = "hr_image",
         download: bool = False,
     ) -> None:
+        super().__init__(
+            train=train,
+            target_type=target_type,
+            patch_size=patch_size,
+            transform=transform,
+            low_resolution_image_key=low_resolution_image_key,
+            high_resolution_image_key=high_resolution_image_key,
+        )
+
         filename = "Flickr2K.tar"
         if download:
             # download images
@@ -253,36 +312,19 @@ class Flickr2K(DIV2KDataset):
                 md5=self.resources[filename],
             )
 
-        self.train = train
-
-        self.lr_key = low_resolution_image_key
-        self.hr_key = high_resolution_image_key
-
         degradation, downscaling = target_type.split("_")
 
         # 'index' files
-        subdir_hr = "Flickr2K_HR"
         subdir_lr = Path(f"Flickr2K_LR_{degradation}", downscaling)
-        lr_images = self._images_in_dir(root, Path(filename).stem, subdir_hr)
-        hr_images = self._images_in_dir(root, Path(filename).stem, subdir_lr)
+        subdir_hr = "Flickr2K_HR"
+        lr_images = images_in_dir(root, Path(filename).stem, subdir_lr)
+        hr_images = images_in_dir(root, Path(filename).stem, subdir_hr)
         assert len(lr_images) == len(hr_images)
 
         self.data = [
             {"lr_image": lr_image, "hr_image": hr_image}
             for lr_image, hr_image in zip(lr_images, hr_images)
         ]
-
-        self.open_fn = data.ReaderCompose([
-            data.ImageReader(input_key="lr_image", output_key=self.lr_key),
-            data.ImageReader(input_key="hr_image", output_key=self.hr_key),
-        ])
-
-        self.scale = int(downscaling) if downscaling.isdigit() else 4
-        height, width = patch_size
-        self.target_patch_size = patch_size
-        self.input_patch_size = (height // self.scale, width // self.scale)
-
-        self.transform = utils.Augmentor(transform)
 
 
 class ImageFolderDataset(data.ListDataset):
