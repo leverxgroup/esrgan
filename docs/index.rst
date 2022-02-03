@@ -120,11 +120,11 @@ License
    :maxdepth: 2
    :caption: API
 
-   pages/api/core
+   pages/api/nn
    pages/api/models
-   pages/api/criterions
    pages/api/datasets
    pages/api/utils
+   pages/api/catalyst
 
 Indices and tables
 ==================

@@ -3,7 +3,8 @@ from typing import Any, Callable, List, Tuple
 
 from torch import nn
 
-from esrgan.model.module.blocks import container, Conv2d, LeakyReLU
+from esrgan.nn.modules import container
+from esrgan.nn.modules.misc import Conv2d, LeakyReLU
 
 __all__ = ["ResidualDenseBlock", "ResidualInResidualDenseBlock"]
 

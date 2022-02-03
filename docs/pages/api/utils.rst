@@ -1,7 +1,13 @@
 Utilities
 =========
 
-Set of utilities that can make life a little bit easier.
+Set of utilities that can make life a little bit easier:
+
+.. toctree::
+   :titlesonly:
+
+.. contents::
+   :local:
 
 
 Augmentation

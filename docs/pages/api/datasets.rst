@@ -6,27 +6,36 @@ implemented. Hence, they can all be passed to a :class:`torch.utils.data.DataLoa
 parallelly using ``torch.multiprocessing`` workers.
 For example: ::
 
-    div2k_data = esrgan.dataset.DIV2KDataset('path/to/div2k_root/')
+    div2k_data = esrgan.datasets.DIV2KDataset('path/to/div2k_root/')
     data_loader = torch.utils.data.DataLoader(div2k_data, batch_size=4, shuffle=True)
+
+
+The models subpackage contains definitions for the following datasets for image super-resolution:
+
+.. toctree::
+   :titlesonly:
+
+.. contents::
+   :local:
 
 
 DIV2K
 ^^^^^
 
-.. autoclass:: esrgan.dataset.DIV2KDataset
+.. autoclass:: esrgan.datasets.DIV2KDataset
     :members:
 
 
 Flickr2K
 ^^^^^^^^
 
-.. autoclass:: esrgan.dataset.Flickr2KDataset
+.. autoclass:: esrgan.datasets.Flickr2KDataset
     :members:
 
 
 Folder of Images
 ^^^^^^^^^^^^^^^^
 
-.. autoclass:: esrgan.dataset.ImageFolderDataset
+.. autoclass:: esrgan.datasets.ImageFolderDataset
     :members:
     :undoc-members:

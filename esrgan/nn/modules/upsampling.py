@@ -4,7 +4,7 @@ import torch
 from torch import nn
 from torch.nn import functional as F
 
-from esrgan.model.module.blocks.misc import Conv2d, LeakyReLU
+from esrgan.nn.modules.misc import Conv2d, LeakyReLU
 
 __all__ = ["SubPixelConv", "InterpolateConv"]
 

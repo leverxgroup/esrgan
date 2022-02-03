@@ -5,33 +5,31 @@ import torch
 from torch import nn
 
 from esrgan import utils
-from esrgan.model.module import blocks
+from esrgan.nn import modules
 
-__all__ = ["ESREncoder", "ESRNetDecoder"]
+__all__ = ["SRResNetEncoder", "SRResNetDecoder"]
 
 
-class ESREncoder(nn.Module):
-    """'Encoder' part of ESRGAN network, processing images in LR space.
+class SRResNetEncoder(nn.Module):
+    """'Encoder' part of SRResNet network, processing images in LR space.
 
-    It has been proposed in `ESRGAN: Enhanced Super-Resolution
-    Generative Adversarial Networks`_.
+    It has been proposed in `Photo-Realistic Single Image Super-Resolution
+    Using a Generative Adversarial Network`_.
 
     Args:
         in_channels: Number of channels in the input image.
         out_channels: Number of channels produced by the encoder.
-        growth_channels: Number of channels in the latent space.
-        num_basic_blocks: Depth of the encoder, number of Residual-in-Residual
-            Dense block (RRDB) to use.
-        num_dense_blocks: Number of dense blocks to use to form `RRDB` block.
-        num_residual_blocks: Number of convolutions to use to form dense block.
+        num_basic_blocks: Depth of the encoder, number of basic blocks to use.
         conv: Class constructor or partial object which when called
             should return convolutional layer e.g., :py:class:`nn.Conv2d`.
+        norm: Class constructor or partial object which when called should
+            return normalization layer e.g., :py:class:`.nn.BatchNorm2d`.
         activation: Class constructor or partial object which when called
-            should return activation function to use e.g., :py:class:`nn.ReLU`.
-        residual_scaling: Residual connections scaling factor.
+            should return activation function to use after BN layers
+            e.g., :py:class:`nn.PReLU`.
 
-    .. _`ESRGAN: Enhanced Super-Resolution Generative Adversarial Networks`:
-        https://arxiv.org/pdf/1809.00219.pdf
+    .. _`Photo-Realistic Single Image Super-Resolution Using a Generative
+        Adversarial Network`: https://arxiv.org/pdf/1609.04802.pdf
 
     """
 
@@ -39,37 +37,37 @@ class ESREncoder(nn.Module):
         self,
         in_channels: int = 3,
         out_channels: int = 64,
-        growth_channels: int = 32,
-        num_basic_blocks: int = 23,
-        num_dense_blocks: int = 3,
-        num_residual_blocks: int = 5,
-        conv: Callable[..., nn.Module] = blocks.Conv2d,
-        activation: Callable[..., nn.Module] = blocks.LeakyReLU,
-        residual_scaling: float = 0.2,
+        num_basic_blocks: int = 16,
+        conv: Callable[..., nn.Module] = modules.Conv2d,
+        norm: Callable[..., nn.Module] = nn.BatchNorm2d,
+        activation: Callable[..., nn.Module] = nn.PReLU,
     ) -> None:
         super().__init__()
 
+        num_features = out_channels
         blocks_list: List[nn.Module] = []
 
         # first conv
-        first_conv = conv(in_channels, out_channels)
+        first_conv = nn.Sequential(
+            conv(in_channels, num_features), activation()
+        )
         blocks_list.append(first_conv)
 
-        # basic blocks - sequence of rrdb layers
+        # basic blocks - sequence of B residual blocks
         for _ in range(num_basic_blocks):
-            basic_block = blocks.ResidualInResidualDenseBlock(
-                num_features=out_channels,
-                growth_channels=growth_channels,
-                conv=conv,
-                activation=activation,
-                num_dense_blocks=num_dense_blocks,
-                num_blocks=num_residual_blocks,
-                residual_scaling=residual_scaling,
+            basic_block = nn.Sequential(
+                conv(num_features, num_features),
+                norm(num_features,),
+                activation(),
+                conv(num_features, num_features),
+                norm(num_features),
             )
-            blocks_list.append(basic_block)
+            blocks_list.append(modules.ResidualModule(basic_block))
 
         # last conv of the encoder
-        last_conv = conv(out_channels, out_channels)
+        last_conv = nn.Sequential(
+            conv(num_features, out_channels), norm(out_channels),
+        )
         blocks_list.append(last_conv)
 
         self.blocks = nn.ModuleList(blocks_list)
@@ -91,11 +89,11 @@ class ESREncoder(nn.Module):
         return input_ + output
 
 
-class ESRNetDecoder(nn.Module):
-    """'Decoder' part of ESRGAN, converting embeddings to output image.
+class SRResNetDecoder(nn.Module):
+    """'Decoder' part of SRResNet, converting embeddings to output image.
 
-    It has been proposed in `ESRGAN: Enhanced Super-Resolution
-    Generative Adversarial Networks`_.
+    It has been proposed in `Photo-Realistic Single Image Super-Resolution
+    Using a Generative Adversarial Network`_.
 
     Args:
         in_channels: Number of channels in the input embedding.
@@ -108,8 +106,8 @@ class ESRNetDecoder(nn.Module):
         activation: Class constructor or partial object which when called
             should return activation function to use e.g., :py:class:`nn.ReLU`.
 
-    .. _`ESRGAN: Enhanced Super-Resolution Generative Adversarial Networks`:
-        https://arxiv.org/pdf/1809.00219.pdf
+    .. _`Photo-Realistic Single Image Super-Resolution Using a Generative
+        Adversarial Network`: https://arxiv.org/pdf/1609.04802.pdf
 
     """
 
@@ -118,8 +116,8 @@ class ESRNetDecoder(nn.Module):
         in_channels: int = 64,
         out_channels: int = 3,
         scale_factor: int = 2,
-        conv: Callable[..., nn.Module] = blocks.Conv2d,
-        activation: Callable[..., nn.Module] = blocks.LeakyReLU,
+        conv: Callable[..., nn.Module] = modules.Conv2d,
+        activation: Callable[..., nn.Module] = nn.PReLU,
     ) -> None:
         super().__init__()
 
@@ -133,19 +131,15 @@ class ESRNetDecoder(nn.Module):
 
         # upsampling
         for i in range(scale_factor // 2):
-            upsampling_block = blocks.InterpolateConv(
+            upsampling_block = modules.SubPixelConv(
                 num_features=in_channels,
                 conv=conv,
                 activation=activation,
             )
             blocks_list.append((f"upsampling_{i}", upsampling_block))
 
-        # highres conv + last conv
-        last_conv = nn.Sequential(
-            conv(in_channels, in_channels),
-            activation(),
-            conv(in_channels, out_channels),
-        )
+        # highres conv
+        last_conv = conv(in_channels, out_channels)
         blocks_list.append(("conv", last_conv))
 
         self.blocks = nn.Sequential(collections.OrderedDict(blocks_list))

@@ -1,71 +1,82 @@
 Models
 ======
 
-Generator
----------
+The models subpackage contains definitions of models for addressing image super-resolution tasks:
 
-.. automodule:: esrgan.model.generator
+.. toctree::
+   :titlesonly:
+
+.. contents::
+   :local:
+
+
+Generators
+----------
+
+EncoderDecoderNet
+^^^^^^^^^^^^^^^^^
+
+.. autoclass:: esrgan.models.EncoderDecoderNet
     :members:
     :undoc-members:
+
 
 SRGAN
 ^^^^^
 
-.. automodule:: esrgan.model.module.srresnet
+SRResNetEncoder
+~~~~~~~~~~~~~~~
+
+.. autoclass:: esrgan.models.SRResNetEncoder
     :members:
     :undoc-members:
+
+SRResNetDecoder
+~~~~~~~~~~~~~~~
+
+.. autoclass:: esrgan.models.SRResNetDecoder
+    :members:
+    :undoc-members:
+
 
 ESRGAN
 ^^^^^^
 
-.. automodule:: esrgan.model.module.esrnet
+ESREncoder
+~~~~~~~~~~
+
+.. autoclass:: esrgan.models.ESREncoder
+    :members:
+    :undoc-members:
+
+ESRNetDecoder
+~~~~~~~~~~~~~
+
+.. autoclass:: esrgan.models.ESRNetDecoder
     :members:
     :undoc-members:
 
 
-Discriminator
--------------
+Discriminators
+--------------
 
-.. automodule:: esrgan.model.discriminator
-    :members:
-    :undoc-members:
-.. automodule:: esrgan.model.module.conv
-    :members:
-    :undoc-members:
-.. automodule:: esrgan.model.module.linear
+VGGConv
+^^^^^^^
+
+.. autoclass:: esrgan.models.VGGConv
     :members:
     :undoc-members:
 
+StridedConvEncoder
+~~~~~~~~~~~~~~~~~~
 
-Layers
-------
-
-These are the basic building block for graphs
-
-Containers
-^^^^^^^^^^
-
-.. automodule:: esrgan.model.module.blocks.container
+.. autoclass:: esrgan.models.StridedConvEncoder
     :members:
     :undoc-members:
 
-Residual-in-Residual Block
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+LinearHead
+~~~~~~~~~~
 
-.. automodule:: esrgan.model.module.blocks.rrdb
-    :members:
-    :undoc-members:
-
-Upsample
-^^^^^^^^
-
-.. automodule:: esrgan.model.module.blocks.upsampling
-    :members:
-    :undoc-members:
-
-Misc
-^^^^
-
-.. automodule:: esrgan.model.module.blocks.misc
+.. autoclass:: esrgan.models.LinearHead
     :members:
     :undoc-members:
