@@ -57,6 +57,4 @@ jobs:
 
       - name: Check pipeline
         run: |
-          poetry run catalyst-dl run -C config.yml --check \
-            --stages/stage1_supervised/loaders/train/batch_size=2:int \
-            --stages/stage2_gan/loaders/train/batch_size=2:int
+          poetry run catalyst-dl run -C tests/pipeline/config.yml --check
