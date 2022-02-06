@@ -3,11 +3,9 @@ Models
 
 The models subpackage contains definitions of models for addressing image super-resolution tasks:
 
-.. toctree::
-   :titlesonly:
-
 .. contents::
-   :local:
+    :depth: 2
+    :local:
 
 
 Generators
@@ -24,15 +22,9 @@ EncoderDecoderNet
 SRGAN
 ^^^^^
 
-SRResNetEncoder
-~~~~~~~~~~~~~~~
-
 .. autoclass:: esrgan.models.SRResNetEncoder
     :members:
     :undoc-members:
-
-SRResNetDecoder
-~~~~~~~~~~~~~~~
 
 .. autoclass:: esrgan.models.SRResNetDecoder
     :members:
@@ -42,15 +34,9 @@ SRResNetDecoder
 ESRGAN
 ^^^^^^
 
-ESREncoder
-~~~~~~~~~~
-
 .. autoclass:: esrgan.models.ESREncoder
     :members:
     :undoc-members:
-
-ESRNetDecoder
-~~~~~~~~~~~~~
 
 .. autoclass:: esrgan.models.ESRNetDecoder
     :members:
@@ -68,14 +54,14 @@ VGGConv
     :undoc-members:
 
 StridedConvEncoder
-~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: esrgan.models.StridedConvEncoder
     :members:
     :undoc-members:
 
 LinearHead
-~~~~~~~~~~
+^^^^^^^^^^
 
 .. autoclass:: esrgan.models.LinearHead
     :members:

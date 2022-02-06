@@ -3,11 +3,9 @@ Utilities
 
 Set of utilities that can make life a little bit easier:
 
-.. toctree::
-   :titlesonly:
-
 .. contents::
-   :local:
+    :depth: 2
+    :local:
 
 
 Augmentation

@@ -3,11 +3,9 @@ Catalyst
 
 Various features for customization/modification of `Catalyst <https://catalyst-team.com>`__ pipelines e.g., runners, metrics, callbacks:
 
-.. toctree::
-   :titlesonly:
-
 .. contents::
-   :local:
+    :depth: 2
+    :local:
 
 
 Runners

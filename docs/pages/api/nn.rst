@@ -3,11 +3,9 @@ NN
 
 These are the basic building block for graphs:
 
-.. toctree::
-   :titlesonly:
-
 .. contents::
-   :local:
+    :depth: 2
+    :local:
 
 
 Containers

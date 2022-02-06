@@ -1,5 +1,3 @@
-.. _esrgan:
-
 ======
 ESRGAN
 ======
@@ -16,7 +14,8 @@ Main modifications in the structure of generator G, discriminator D, and trainin
 1. all BN layers were removed from the generator;
 2. original basic blocks were replaced with the proposed Residual-in-Residual Dense Blocks (RRDB),
    which combines multi-level residual network and dense connections;
-3. relativistic discriminator, which tries to predict the probability that a real image :math:`x_r` is relatively more realistic than a fake one :math:`x_f`;
+3. relativistic discriminator, which tries to predict the probability that a real image :math:`x_r`
+   is relatively more realistic than a fake one :math:`x_f`;
 4. perceptual loss on features before activation.
 
 
