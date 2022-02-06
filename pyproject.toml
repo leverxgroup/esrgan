@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "esrgan"
-version = "0.1.2"
+version = "0.2.0"
 description = "Implementation of paper `ESRGAN: Enhanced Super-Resolution Generative Adversarial Networks`"
 license = "CC-BY-NC-ND-4.0"
 authors = [
