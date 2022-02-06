@@ -31,14 +31,16 @@ classifiers = [
   "Topic :: Software Development :: Libraries",
   "Topic :: Software Development :: Libraries :: Python Modules",
   "Programming Language :: Python",
+  "Programming Language :: Python :: 3.7",
   "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
 ]
 
 [tool.poetry.scripts]
 esrgan-process-images = 'esrgan.utils.scripts.process_images:main'
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.7"
 
 catalyst = { version = "~21.12", extras = ["cv", "albu"] }
 jpeg4py = "^0.1.4"
