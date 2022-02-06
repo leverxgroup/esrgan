@@ -30,7 +30,7 @@ class GANRunner(IRunner):
         discriminator_key: Key in model dict mapping for discriminator
             model (will be used in gan stages only).
 
-    __ https://catalyst-team.github.io/catalyst/api/core.html#experiment
+    __ https://catalyst-team.github.io/catalyst/core/runner.html
 
     """
 
@@ -177,7 +177,7 @@ class GANConfigRunner(runners.ConfigRunner, GANRunner):
         discriminator_key: Key in model dict mapping for discriminator
             model (will be used in gan stages only).
 
-    __ https://catalyst-team.github.io/catalyst/api/core.html#experiment
+    __ https://catalyst-team.github.io/catalyst/core/runner.html
 
     """
 
