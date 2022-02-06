@@ -19,29 +19,22 @@ Key points of ESRGAN:
 
 * `Catalyst` as pipeline runner for deep learning tasks. This new and rapidly developing [library](https://github.com/catalyst-team/catalyst).
   can significantly reduce the amount of boilerplate code. If you are familiar with the TensorFlow ecosystem, you can think of Catalyst
-  as Keras for PyTorch. This framework is integrated with logging systems such as the well-known [TensorBoard](https://www.tensorflow.org/tensorboard).
-* `Pytorch`, `torchvision`, and `PIQ` as main frameworks for deep learning.
-* `Albumentations` for data preprocessing.
+  as Keras for PyTorch. This framework is integrated with logging systems such as the well-known [TensorBoard](https://www.tensorflow.org/tensorboard);
+* `Pytorch` and `torchvision` as main frameworks for deep learning;
+* `Albumentations` and `PIQ` for data processing.
 
 ## Quick Start
 
 ### Setup environment
-`esrgan` requires python >= 3.8. The [requirements.txt](requirements.txt) file can be used to install the necessary packages.
-
-```
-git clone  https://github.com/leverxgroup/esrgan.git
-pip install ./esrgan
+```bash
+pip install git+https://github.com/leverxgroup/esrgan.git
 ```
 
 ### Run an experiment
+```bash
+catalyst-dl run -C esrgan/config.yml --benchmark
 ```
-# step 1 - supervised training of the model
-catalyst-dl run -C esrgan/experiment/config_supervised.yml --benchmark
-
-# step 2 - use weights from step 1 to train model using GAN approach
-catalyst-dl run -C esrgan/experiment/config_gan.yml --benchmark
-```
-where `esrgan/experiment/config.yml` is a path to the [config](experiment/config.yml) file.
+where `esrgan/config.yml` is a path to the [config](config.yml) file.
 
 ## Results
 Some examples of work of ESRGAN model trained on [DIV2K](https://data.vision.ee.ethz.ch/cvl/DIV2K) dataset:
@@ -51,6 +44,9 @@ Some examples of work of ESRGAN model trained on [DIV2K](https://data.vision.ee.
 | <img src="docs/_static/sq_crop_lr.png" height="128" width="128"/> | <img src="docs/_static/sq_crop_sr_x4.png" height="128" width="128"/> | <img src="docs/_static/sq_crop_hr.png" height="128" width="128"/> |
 | <img src="docs/_static/wf_crop_lr.png" height="128" width="128"/> | <img src="docs/_static/wf_crop_sr_x4.png" height="128" width="128"/> | <img src="docs/_static/wf_crop_hr.png" height="128" width="128"/> |
 | <img src="docs/_static/fish_crop_lr.png" height="128" width="128"/> | <img src="docs/_static/fish_crop_sr_x4.png" height="128" width="128"/> | <img src="docs/_static/fish_crop_hr.png" height="128" width="128"/> |
+
+## Documentation
+Full documentation for the project is available at https://esrgan.readthedocs.io/
 
 ## License
 `esrgan` is released under a CC BY-NC-ND 4.0 license. See [LICENSE](LICENSE) for additional details about it.

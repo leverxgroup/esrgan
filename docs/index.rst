@@ -22,48 +22,38 @@ capable of recovering HR images from LR ones. And ESRGAN (Enhanced SRGAN) is one
 Key points of ESRGAN:
 
 - SRResNet-based architecture with residual-in-residual blocks;
-- Mixture of context, perceptual, and adversarial losses. Context and perceptual losses are used for proper image upscaling,
-  while adversarial loss pushes neural network to the natural image manifold using a discriminator network
-  that is trained to differentiate between the super-resolved images and original photo-realistic images.
+- Mixture of context, perceptual, and adversarial losses. Context and perceptual losses are used for proper
+  image upscaling, while adversarial loss pushes neural network to the natural image manifold using a discriminator
+  network that is trained to differentiate between the super-resolved images and original photo-realistic images.
 
 .. image:: ./_static/architecture.png
+   :width: 100%
 
 
 Technologies
 ============
 
 * `Catalyst` as pipeline runner for deep learning tasks. This new and rapidly developing `library <https://github.com/catalyst-team/catalyst>`__
-  can significantly reduce the amount of boilerplate code. If you are familiar with the TensorFlow ecosystem, you can think of Catalyst
-  as Keras for PyTorch. This framework is integrated with logging systems such as the well-known `TensorBoard <https://www.tensorflow.org/tensorboard>`__.
-* `Pytorch`, `torchvision`, and `PIQ` as main frameworks for deep learning.
-* `Albumentations` for data preprocessing.
+  can significantly reduce the amount of boilerplate code. If you are familiar with the TensorFlow ecosystem,
+  you can think of Catalyst as Keras for PyTorch. This framework is integrated with logging systems
+  such as the well-known `TensorBoard <https://www.tensorflow.org/tensorboard>`__;
+* `Pytorch` and `torchvision` as main frameworks for deep learning;
+* `Albumentations` and `PIQ` for data processing.
 
 
 Quick Start
 ===========
 
-Setup environment
------------------
-
-`esrgan` requires python >= 3.8. The `requirements.txt <../requirements.txt>`__ file can be used to install the necessary packages.
-
 ::
 
-   git clone  https://github.com/leverxgroup/esrgan.git
-   pip install ./esrgan
+   # step 1 - Setup environment, please check `Installation` for more info
+   pip install git+https://github.com/leverxgroup/esrgan.git
 
-Run an experiment
------------------
+   # step 2 - Load / prepare config with training details
+   wget https://github.com/leverxgroup/esrgan/blob/master/config.yml
 
-::
-
-   # step 1 - supervised training of the model
-   catalyst-dl run -C esrgan/experiment/config_supervised.yml --benchmark
-
-   # step 2 - use weights from step 1 to train model using GAN approach
-   catalyst-dl run -C esrgan/experiment/config_gan.yml --benchmark
-
-where `esrgan/experiment/config.yml` is a path to the `config file <../experiment/config.yml>`__.
+   # step 3 - train ESRGAN
+   catalyst-dl run -C config.yml --benchmark
 
 
 Results
@@ -71,43 +61,27 @@ Results
 
 Some examples of work of ESRGAN model trained on `DIV2K <https://data.vision.ee.ethz.ch/cvl/DIV2K>`__ dataset:
 
-.. |squirrel_lr| image:: ./_static/sq_crop_lr.png
-   :width: 128px
-   :height: 128px
-.. |squirrel_sr| image:: ./_static/sq_crop_sr_x4.png
-   :width: 128px
-   :height: 128px
-.. |squirrel_hr| image:: ./_static/sq_crop_hr.png
-   :width: 128px
-   :height: 128px
+.. table::
+   :widths: 33 33 33
 
-.. |wolf_lr| image:: ./_static/wf_crop_lr.png
-   :width: 128px
-   :height: 128px
-.. |wolf_sr| image:: ./_static/wf_crop_sr_x4.png
-   :width: 128px
-   :height: 128px
-.. |wolf__hr| image:: ./_static/wf_crop_hr.png
-   :width: 128px
-   :height: 128px
-
-.. |fish_lr| image:: ./_static/fish_crop_lr.png
-   :width: 128px
-   :height: 128px
-.. |fish_sr| image:: ./_static/fish_crop_sr_x4.png
-   :width: 128px
-   :height: 128px
-.. |fish_hr| image:: ./_static/fish_crop_hr.png
-   :width: 128px
-   :height: 128px
-
-=====================  ===============  ======================
- LR (low resolution)    ESRGAN (ours)    HR (high resolution)
-=====================  ===============  ======================
-    |squirrel_lr|       |squirrel_sr|       |squirrel_hr|
-      |wolf_lr|           |wolf_sr|           |wolf__hr|
-      |fish_lr|           |fish_sr|           |fish_hr|
-=====================  ===============  ======================
+   +---------------------------------------+------------------------------------------+---------------------------------------+
+   | .. centered:: LR (low resolution)     | .. centered:: ESRGAN (ours)              | .. centered:: HR (high resolution)    |
+   +=======================================+==========================================+=======================================+
+   | .. image:: ./_static/sq_crop_lr.png   | .. image:: ./_static/sq_crop_sr_x4.png   | .. image:: ./_static/sq_crop_hr.png   |
+   |    :width: 128px                      |    :width: 128px                         |    :width: 128px                      |
+   |    :height: 128px                     |    :height: 128px                        |    :height: 128px                     |
+   |    :align: center                     |    :align: center                        |    :align: center                     |
+   +---------------------------------------+------------------------------------------+---------------------------------------+
+   | .. image:: ./_static/wf_crop_lr.png   | .. image:: ./_static/wf_crop_sr_x4.png   | .. image:: ./_static/wf_crop_hr.png   |
+   |    :width: 128px                      |    :width: 128px                         |    :width: 128px                      |
+   |    :height: 128px                     |    :height: 128px                        |    :height: 128px                     |
+   |    :align: center                     |    :align: center                        |    :align: center                     |
+   +---------------------------------------+------------------------------------------+---------------------------------------+
+   | .. image:: ./_static/fish_crop_lr.png | .. image:: ./_static/fish_crop_sr_x4.png | .. image:: ./_static/fish_crop_hr.png |
+   |    :width: 128px                      |    :width: 128px                         |    :width: 128px                      |
+   |    :height: 128px                     |    :height: 128px                        |    :height: 128px                     |
+   |    :align: center                     |    :align: center                        |    :align: center                     |
+   +---------------------------------------+------------------------------------------+---------------------------------------+
 
 
 GitHub
@@ -120,18 +94,25 @@ Bugfixes and contributions are very much appreciated!
 License
 =======
 
-`esrgan` is released under a CC BY-NC-ND 4.0 license. See `LICENSE <../LICENSE>`__ for additional details about it.
+`esrgan` is released under a CC-BY-NC-ND-4.0 license. See `LICENSE <https://github.com/leverxgroup/esrgan/blob/master/LICENSE>`__ for additional details about it.
 
+
+.. toctree::
+   :maxdepth: 3
+   :caption: General
+
+   pages/install
+   pages/esrgan
 
 .. toctree::
    :maxdepth: 2
    :caption: API
 
-   pages/api/core
+   pages/api/nn
    pages/api/models
-   pages/api/criterions
    pages/api/datasets
    pages/api/utils
+   pages/api/catalyst
 
 Indices and tables
 ==================

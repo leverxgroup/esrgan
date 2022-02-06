@@ -9,24 +9,40 @@
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
-#
-import datetime
+
 import os
 import sys
+from typing import Iterable
+
+import tomlkit
+
 sys.path.insert(0, os.path.abspath("../"))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'esrgan'
-copyright = '2020, Emerline, Inc. and its affiliates.'
-author = 'Emerline'
+def _get_project_meta():
+    with open("../pyproject.toml") as pyproject:
+        file_contents = pyproject.read()
+
+    return tomlkit.parse(file_contents)["tool"]["poetry"]
 
 
-## -- General configuration ---------------------------------------------------
+pkg_meta = _get_project_meta()
+project = str(pkg_meta["name"])
+copyright = "2020, Emerline, Inc. and its affiliates."  # noqa: WPS125
+author = "Emerline"
+
+# The short X.Y version
+version = str(pkg_meta["version"])
+# The full version, including alpha/beta/rc tags
+release = version
+
+
+# -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
-# extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
+# extensions coming with Sphinx (named "sphinx.ext.*") or your custom
 # ones.
 extensions = [
     "sphinx.ext.autodoc",
@@ -34,7 +50,7 @@ extensions = [
     "sphinx.ext.viewcode",
     "sphinx.ext.githubpages",
     "sphinx.ext.napoleon",
-    'sphinx.ext.intersphinx',
+    "sphinx.ext.intersphinx",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -57,7 +73,7 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
-exclude_patterns = []
+exclude_patterns: Iterable[str] = []
 
 autodoc_inherit_docstrings = False
 napoleon_google_docstring = True
@@ -76,7 +92,7 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_rtd_theme"
+html_theme = "press"
 html_favicon = "_static/index.ico"
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -84,4 +100,4 @@ html_favicon = "_static/index.ico"
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
 
-html_short_title = "esrgan"
+html_short_title = project

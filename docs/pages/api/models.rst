@@ -1,71 +1,68 @@
 Models
 ======
 
-Generator
----------
+The models subpackage contains definitions of models for addressing image super-resolution tasks:
 
-.. automodule:: esrgan.model.generator
+.. contents::
+    :depth: 2
+    :local:
+
+
+Generators
+----------
+
+EncoderDecoderNet
+^^^^^^^^^^^^^^^^^
+
+.. autoclass:: esrgan.models.EncoderDecoderNet
     :members:
     :undoc-members:
+
 
 SRGAN
 ^^^^^
 
-.. automodule:: esrgan.model.module.srresnet
+.. autoclass:: esrgan.models.SRResNetEncoder
     :members:
     :undoc-members:
+
+.. autoclass:: esrgan.models.SRResNetDecoder
+    :members:
+    :undoc-members:
+
 
 ESRGAN
 ^^^^^^
 
-.. automodule:: esrgan.model.module.esrnet
+.. autoclass:: esrgan.models.ESREncoder
+    :members:
+    :undoc-members:
+
+.. autoclass:: esrgan.models.ESRNetDecoder
     :members:
     :undoc-members:
 
 
-Discriminator
--------------
+Discriminators
+--------------
 
-.. automodule:: esrgan.model.discriminator
-    :members:
-    :undoc-members:
-.. automodule:: esrgan.model.module.conv
-    :members:
-    :undoc-members:
-.. automodule:: esrgan.model.module.linear
+VGGConv
+^^^^^^^
+
+.. autoclass:: esrgan.models.VGGConv
     :members:
     :undoc-members:
 
+StridedConvEncoder
+^^^^^^^^^^^^^^^^^^
 
-Layers
-------
+.. autoclass:: esrgan.models.StridedConvEncoder
+    :members:
+    :undoc-members:
 
-These are the basic building block for graphs
-
-Containers
+LinearHead
 ^^^^^^^^^^
 
-.. automodule:: esrgan.model.module.blocks.container
-    :members:
-    :undoc-members:
-
-Residual-in-Residual Block
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: esrgan.model.module.blocks.rrdb
-    :members:
-    :undoc-members:
-
-Upsample
-^^^^^^^^
-
-.. automodule:: esrgan.model.module.blocks.upsampling
-    :members:
-    :undoc-members:
-
-Misc
-^^^^
-
-.. automodule:: esrgan.model.module.blocks.misc
+.. autoclass:: esrgan.models.LinearHead
     :members:
     :undoc-members:

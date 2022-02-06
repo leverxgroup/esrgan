@@ -1,0 +1,55 @@
+name: build
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+
+      - name: Install poetry
+        run: |
+          pip install -U pip
+          curl -sSL "https://install.python-poetry.org" | python -
+          echo "${HOME}/.poetry/bin" >> $GITHUB_PATH
+
+      - name: Set up cache
+        uses: actions/cache@v2
+        with:
+          path: .venv
+          key: venv-${{ matrix.python-version }}-${{ hashFiles('poetry.lock') }}
+      - name: Install dependencies
+        run: |
+          poetry config virtualenvs.in-project true
+          poetry run pip install -U pip
+          poetry install
+
+      - name: Check codestyle
+        run: |
+          poetry run flake8 --show-source --statistics --count -- .
+          poetry run isort --check-only -- .
+          # poetry run mypy -- .
+          poetry run doc8 -q -- docs
+
+      # - name: Unit tests
+      #   run: |
+      #     poetry run pytest .
+
+      - name: Check dependencies compatibility
+        run: |
+          poetry run poetry check
+          poetry run pip check
