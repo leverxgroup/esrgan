@@ -27,6 +27,7 @@ Key points of ESRGAN:
   network that is trained to differentiate between the super-resolved images and original photo-realistic images.
 
 .. image:: ./_static/architecture.png
+   :width: 100%
 
 
 Technologies
@@ -101,6 +102,7 @@ License
    :caption: General
 
    pages/install
+   pages/esrgan
 
 .. toctree::
    :maxdepth: 2

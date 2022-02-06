@@ -1,4 +1,4 @@
-sphinx==2.2.1
+sphinx==4.0.1
 # sphinx_rtd_theme
-sphinx-press-theme
+sphinx-press-theme==0.8.0
 tomlkit==0.7.2
