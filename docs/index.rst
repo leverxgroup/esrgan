@@ -35,44 +35,24 @@ Technologies
 * `Catalyst` as pipeline runner for deep learning tasks. This new and rapidly developing `library <https://github.com/catalyst-team/catalyst>`__
   can significantly reduce the amount of boilerplate code. If you are familiar with the TensorFlow ecosystem,
   you can think of Catalyst as Keras for PyTorch. This framework is integrated with logging systems
-  such as the well-known `TensorBoard <https://www.tensorflow.org/tensorboard>`__.
-* `Pytorch`, `torchvision`, and `PIQ` as main frameworks for deep learning.
-* `Albumentations` for data preprocessing.
+  such as the well-known `TensorBoard <https://www.tensorflow.org/tensorboard>`__;
+* `Pytorch` and `torchvision` as main frameworks for deep learning;
+* `Albumentations` and `PIQ` for data processing.
 
 
 Quick Start
 ===========
 
-Setup environment
------------------
-
-`esrgan` requires python >= 3.8.
-
 ::
 
+   # step 1 - Setup environment, please check `Installation` for more info
    pip install git+https://github.com/leverxgroup/esrgan.git
 
-or install with ``Poetry``
+   # step 2 - Load / prepare config with training details
+   wget https://github.com/leverxgroup/esrgan/blob/master/config.yml
 
-::
-
-   git clone https://github.com/leverxgroup/esrgan.git
-   cd esrgan
-   poetry install
-
-Run an experiment
------------------
-
-::
-
-   # step 1 - download dir with ESRGAN experiment
-   git clone --depth 1 https://github.com/leverxgroup/esrgan.git
-
-   # step 2 - training of the model
-   catalyst-dl run -C esrgan/config.yml --benchmark
-
-
-where `esrgan/config.yml` is a path to the `config file <https://github.com/leverxgroup/esrgan/blob/master/config.yml>`__.
+   # step 3 - train ESRGAN
+   catalyst-dl run -C config.yml --benchmark
 
 
 Results
@@ -115,6 +95,12 @@ License
 
 `esrgan` is released under a CC-BY-NC-ND-4.0 license. See `LICENSE <https://github.com/leverxgroup/esrgan/blob/master/LICENSE>`__ for additional details about it.
 
+
+.. toctree::
+   :maxdepth: 3
+   :caption: General
+
+   pages/install
 
 .. toctree::
    :maxdepth: 2

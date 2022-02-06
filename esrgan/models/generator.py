@@ -23,7 +23,6 @@ class EncoderDecoderNet(nn.Module):
         self.encoder = encoder
         self.decoder = decoder
 
-        # TODO:
         utils.net_init_(self)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:

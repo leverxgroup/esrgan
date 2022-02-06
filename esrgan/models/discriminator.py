@@ -212,7 +212,6 @@ class VGGConv(nn.Module):
         self.pool = pool
         self.head = head
 
-        # TODO:
         utils.net_init_(self)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
