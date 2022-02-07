@@ -30,7 +30,7 @@ def _get_project_meta():
 
 pkg_meta = _get_project_meta()
 project = str(pkg_meta["name"])
-copyright = "2020, Emerline, Inc. and its affiliates."  # noqa: WPS125
+copyright = "2022, Emerline, Inc. All Rights Reserved."  # noqa: WPS125
 author = "Emerline"
 
 # The short X.Y version
