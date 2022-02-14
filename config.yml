@@ -94,7 +94,7 @@ stages:
                       - _target_: albumentations.Normalize
                         mean: 0
                         std: 1
-                      - _target_: albumentations.ToTensorV2
+                      - _target_: albumentations.pytorch.ToTensorV2
                     additional_targets:
                       real_image: image
               low_resolution_image_key: image
