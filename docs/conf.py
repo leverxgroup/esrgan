@@ -101,3 +101,5 @@ html_favicon = "_static/index.ico"
 html_static_path = ["_static"]
 
 html_short_title = project
+
+html_scaled_image_link = False

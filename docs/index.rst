@@ -62,26 +62,28 @@ Results
 Some examples of work of ESRGAN model trained on `DIV2K <https://data.vision.ee.ethz.ch/cvl/DIV2K>`__ dataset:
 
 .. table::
-   :widths: 33 33 33
+   :widths: 25 25 25 25
 
-   +---------------------------------------+------------------------------------------+---------------------------------------+
-   | .. centered:: LR (low resolution)     | .. centered:: ESRGAN (ours)              | .. centered:: HR (high resolution)    |
-   +=======================================+==========================================+=======================================+
-   | .. image:: ./_static/sq_crop_lr.png   | .. image:: ./_static/sq_crop_sr_x4.png   | .. image:: ./_static/sq_crop_hr.png   |
-   |    :width: 128px                      |    :width: 128px                         |    :width: 128px                      |
-   |    :height: 128px                     |    :height: 128px                        |    :height: 128px                     |
-   |    :align: center                     |    :align: center                        |    :align: center                     |
-   +---------------------------------------+------------------------------------------+---------------------------------------+
-   | .. image:: ./_static/wf_crop_lr.png   | .. image:: ./_static/wf_crop_sr_x4.png   | .. image:: ./_static/wf_crop_hr.png   |
-   |    :width: 128px                      |    :width: 128px                         |    :width: 128px                      |
-   |    :height: 128px                     |    :height: 128px                        |    :height: 128px                     |
-   |    :align: center                     |    :align: center                        |    :align: center                     |
-   +---------------------------------------+------------------------------------------+---------------------------------------+
-   | .. image:: ./_static/fish_crop_lr.png | .. image:: ./_static/fish_crop_sr_x4.png | .. image:: ./_static/fish_crop_hr.png |
-   |    :width: 128px                      |    :width: 128px                         |    :width: 128px                      |
-   |    :height: 128px                     |    :height: 128px                        |    :height: 128px                     |
-   |    :align: center                     |    :align: center                        |    :align: center                     |
-   +---------------------------------------+------------------------------------------+---------------------------------------+
+   +-----------------------------------+---------------------------------+-------------------------------+------------------------------------+
+   | .. centered:: LR (low resolution) | .. centered:: `ESRGAN`_         | .. centered:: ESRGAN (ours)   | .. centered:: HR (high resolution) |
+   +===================================+=================================+===============================+====================================+
+   | .. image:: ./_static/0853lr.png   | .. image:: ./_static/0853sr.png | .. image:: ./_static/0853.png | .. image:: ./_static/0853hr.png    |
+   |    :width: 128px                  |    :width: 128px                |    :width: 128px              |    :width: 128px                   |
+   |    :height: 128px                 |    :height: 128px               |    :height: 128px             |    :height: 128px                  |
+   |    :align: center                 |    :align: center               |    :align: center             |    :align: center                  |
+   +-----------------------------------+---------------------------------+-------------------------------+------------------------------------+
+   | .. image:: ./_static/0857lr.png   | .. image:: ./_static/0857sr.png | .. image:: ./_static/0857.png | .. image:: ./_static/0857hr.png    |
+   |    :width: 128px                  |    :width: 128px                |    :width: 128px              |    :width: 128px                   |
+   |    :height: 128px                 |    :height: 128px               |    :height: 128px             |    :height: 128px                  |
+   |    :align: center                 |    :align: center               |    :align: center             |    :align: center                  |
+   +-----------------------------------+---------------------------------+-------------------------------+------------------------------------+
+   | .. image:: ./_static/0887lr.png   | .. image:: ./_static/0887sr.png | .. image:: ./_static/0887.png | .. image:: ./_static/0887hr.png    |
+   |    :width: 128px                  |    :width: 128px                |    :width: 128px              |    :width: 128px                   |
+   |    :height: 128px                 |    :height: 128px               |    :height: 128px             |    :height: 128px                  |
+   |    :align: center                 |    :align: center               |    :align: center             |    :align: center                  |
+   +-----------------------------------+---------------------------------+-------------------------------+------------------------------------+
+
+.. _ESRGAN: https://github.com/xinntao/ESRGAN
 
 
 GitHub

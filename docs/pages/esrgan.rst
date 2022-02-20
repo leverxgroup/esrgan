@@ -3,7 +3,7 @@ ESRGAN
 ======
 
 
-Network Architecture
+Network architecture
 ====================
 
 .. image:: ../_static/architecture.png
@@ -19,7 +19,68 @@ Main modifications in the structure of generator G, discriminator D, and trainin
 4. perceptual loss on features before activation.
 
 
-Qualitative Results
+Some results
+============
+
+.. table::
+   :widths: 25 25 25 25
+
+   +-----------------------------------+----------------------------------+--------------------------------+------------------------------------+
+   | .. centered:: LR (low resolution) | .. centered:: ESRGAN `\[1\]`_    | .. centered:: ESRGAN (ours)    | .. centered:: HR (high resolution) |
+   +===================================+==================================+================================+====================================+
+   | .. image:: ../_static/0802lr.png  | .. image:: ../_static/0802sr.png | .. image:: ../_static/0802.png | .. image:: ../_static/0802hr.png   |
+   |    :width: 128px                  |    :width: 128px                 |    :width: 128px               |    :width: 128px                   |
+   |    :height: 128px                 |    :height: 128px                |    :height: 128px              |    :height: 128px                  |
+   |    :align: center                 |    :align: center                |    :align: center              |    :align: center                  |
+   +-----------------------------------+----------------------------------+--------------------------------+------------------------------------+
+   | .. image:: ../_static/0805lr.png  | .. image:: ../_static/0805sr.png | .. image:: ../_static/0805.png | .. image:: ../_static/0805hr.png   |
+   |    :width: 128px                  |    :width: 128px                 |    :width: 128px               |    :width: 128px                   |
+   |    :height: 128px                 |    :height: 128px                |    :height: 128px              |    :height: 128px                  |
+   |    :align: center                 |    :align: center                |    :align: center              |    :align: center                  |
+   +-----------------------------------+----------------------------------+--------------------------------+------------------------------------+
+   | .. image:: ../_static/0811lr.png  | .. image:: ../_static/0811sr.png | .. image:: ../_static/0811.png | .. image:: ../_static/0811hr.png   |
+   |    :width: 128px                  |    :width: 128px                 |    :width: 128px               |    :width: 128px                   |
+   |    :height: 128px                 |    :height: 128px                |    :height: 128px              |    :height: 128px                  |
+   |    :align: center                 |    :align: center                |    :align: center              |    :align: center                  |
+   +-----------------------------------+----------------------------------+--------------------------------+------------------------------------+
+   | .. image:: ../_static/0815lr.png  | .. image:: ../_static/0815sr.png | .. image:: ../_static/0815.png | .. image:: ../_static/0815hr.png   |
+   |    :width: 128px                  |    :width: 128px                 |    :width: 128px               |    :width: 128px                   |
+   |    :height: 128px                 |    :height: 128px                |    :height: 128px              |    :height: 128px                  |
+   |    :align: center                 |    :align: center                |    :align: center              |    :align: center                  |
+   +-----------------------------------+----------------------------------+--------------------------------+------------------------------------+
+   | .. image:: ../_static/0829lr.png  | .. image:: ../_static/0829sr.png | .. image:: ../_static/0829.png | .. image:: ../_static/0829hr.png   |
+   |    :width: 128px                  |    :width: 128px                 |    :width: 128px               |    :width: 128px                   |
+   |    :height: 128px                 |    :height: 128px                |    :height: 128px              |    :height: 128px                  |
+   |    :align: center                 |    :align: center                |    :align: center              |    :align: center                  |
+   +-----------------------------------+----------------------------------+--------------------------------+------------------------------------+
+   | .. image:: ../_static/0845lr.png  | .. image:: ../_static/0845sr.png | .. image:: ../_static/0845.png | .. image:: ../_static/0845hr.png   |
+   |    :width: 128px                  |    :width: 128px                 |    :width: 128px               |    :width: 128px                   |
+   |    :height: 128px                 |    :height: 128px                |    :height: 128px              |    :height: 128px                  |
+   |    :align: center                 |    :align: center                |    :align: center              |    :align: center                  |
+   +-----------------------------------+----------------------------------+--------------------------------+------------------------------------+
+   | .. image:: ../_static/0853lr.png  | .. image:: ../_static/0853sr.png | .. image:: ../_static/0853.png | .. image:: ../_static/0853hr.png   |
+   |    :width: 128px                  |    :width: 128px                 |    :width: 128px               |    :width: 128px                   |
+   |    :height: 128px                 |    :height: 128px                |    :height: 128px              |    :height: 128px                  |
+   |    :align: center                 |    :align: center                |    :align: center              |    :align: center                  |
+   +-----------------------------------+----------------------------------+--------------------------------+------------------------------------+
+   | .. image:: ../_static/0857lr.png  | .. image:: ../_static/0857sr.png | .. image:: ../_static/0857.png | .. image:: ../_static/0857hr.png   |
+   |    :width: 128px                  |    :width: 128px                 |    :width: 128px               |    :width: 128px                   |
+   |    :height: 128px                 |    :height: 128px                |    :height: 128px              |    :height: 128px                  |
+   |    :align: center                 |    :align: center                |    :align: center              |    :align: center                  |
+   +-----------------------------------+----------------------------------+--------------------------------+------------------------------------+
+   | .. image:: ../_static/0886lr.png  | .. image:: ../_static/0886sr.png | .. image:: ../_static/0886.png | .. image:: ../_static/0886hr.png   |
+   |    :width: 128px                  |    :width: 128px                 |    :width: 128px               |    :width: 128px                   |
+   |    :height: 128px                 |    :height: 128px                |    :height: 128px              |    :height: 128px                  |
+   |    :align: center                 |    :align: center                |    :align: center              |    :align: center                  |
+   +-----------------------------------+----------------------------------+--------------------------------+------------------------------------+
+   | .. image:: ../_static/0887lr.png  | .. image:: ../_static/0887sr.png | .. image:: ../_static/0887.png | .. image:: ../_static/0887hr.png   |
+   |    :width: 128px                  |    :width: 128px                 |    :width: 128px               |    :width: 128px                   |
+   |    :height: 128px                 |    :height: 128px                |    :height: 128px              |    :height: 128px                  |
+   |    :align: center                 |    :align: center                |    :align: center              |    :align: center                  |
+   +-----------------------------------+----------------------------------+--------------------------------+------------------------------------+
+
+
+Qualitative results
 ===================
 
     PSNR (evaluated on the Y channel) and the perceptual index used in the PIRM-SR challenge
@@ -35,7 +96,7 @@ Qualitative Results
    :width: 100%
 
 
-Ablation Study
+Ablation study
 ==============
 
     Overall visual comparisons for showing the effects of each component in ESRGAN.
