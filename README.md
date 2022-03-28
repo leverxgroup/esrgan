@@ -39,11 +39,11 @@ where `esrgan/config.yml` is a path to the [config](config.yml) file.
 ## Results
 Some examples of work of ESRGAN model trained on [DIV2K](https://data.vision.ee.ethz.ch/cvl/DIV2K) dataset:
 
-| LR</br>(low resolution) | ESRGAN</br>(ours) | HR</br>(high resolution) |
-|:---:|:---:|:---:|
-| <img src="docs/_static/sq_crop_lr.png" height="128" width="128"/> | <img src="docs/_static/sq_crop_sr_x4.png" height="128" width="128"/> | <img src="docs/_static/sq_crop_hr.png" height="128" width="128"/> |
-| <img src="docs/_static/wf_crop_lr.png" height="128" width="128"/> | <img src="docs/_static/wf_crop_sr_x4.png" height="128" width="128"/> | <img src="docs/_static/wf_crop_hr.png" height="128" width="128"/> |
-| <img src="docs/_static/fish_crop_lr.png" height="128" width="128"/> | <img src="docs/_static/fish_crop_sr_x4.png" height="128" width="128"/> | <img src="docs/_static/fish_crop_hr.png" height="128" width="128"/> |
+| LR</br>(low resolution) | ESRGAN</br>(original) | ESRGAN</br>(ours) | HR</br>(high resolution) |
+|:---:|:---:|:---:|:---:|
+| <img src="docs/_static/0853lr.png" height="128" width="128"/> | <img src="docs/_static/0853sr.png" height="128" width="128"/> | <img src="docs/_static/0853.png" height="128" width="128"/> | <img src="docs/_static/0853hr.png" height="128" width="128"/> |
+| <img src="docs/_static/0857lr.png" height="128" width="128"/> | <img src="docs/_static/0857sr.png" height="128" width="128"/> | <img src="docs/_static/0857.png" height="128" width="128"/> | <img src="docs/_static/0857hr.png" height="128" width="128"/> |
+| <img src="docs/_static/0887lr.png" height="128" width="128"/> | <img src="docs/_static/0887sr.png" height="128" width="128"/> | <img src="docs/_static/0887.png" height="128" width="128"/> | <img src="docs/_static/0887hr.png" height="128" width="128"/> |
 
 ## Documentation
 Full documentation for the project is available at https://esrgan.readthedocs.io/
