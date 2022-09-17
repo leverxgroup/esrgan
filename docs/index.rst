@@ -50,7 +50,7 @@ Quick Start
    pip install git+https://github.com/leverxgroup/esrgan.git
 
    # step 2 - Load / prepare config with training details
-   wget https://github.com/leverxgroup/esrgan/blob/master/config.yml
+   wget https://raw.githubusercontent.com/leverxgroup/esrgan/master/config.yml
 
    # step 3 - train ESRGAN
    catalyst-dl run -C config.yml --benchmark
